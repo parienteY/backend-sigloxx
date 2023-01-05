@@ -1,6 +1,11 @@
 <?php
 
 namespace app\controllers;
+use Yii;
+use yii\filters\auth\HttpBearerAuth;
+use yii\web\BadRequestHttpException;
+use yii\base\ExitException;
+use yii\filters\VerbFilter;
 
 class UserController extends \yii\web\Controller
 {
