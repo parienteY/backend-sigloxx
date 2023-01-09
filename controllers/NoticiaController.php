@@ -1,11 +1,15 @@
 <?php
 
 namespace app\controllers;
+
+use app\models\Noticia;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\BadRequestHttpException;
 use yii\base\ExitException;
 use yii\filters\VerbFilter;
+use yii\web\ServerErrorHttpException;
+
 class NoticiaController extends \yii\web\Controller
 {
     public function init() {
@@ -46,5 +50,49 @@ class NoticiaController extends \yii\web\Controller
           ],
         ];
         return $behaviors;
+      }
+
+      public function actionListar($id_noticia = null){
+        if(!is_null($id_noticia)){
+          $response = Noticia::find()
+          ->where(["id"=>$id_noticia])
+          ->all();
+        }else{
+          $response = Noticia::find()->all();
+        }
+
+        return $response;
+      }
+
+      public function actionCrear(){
+        $params = Yii::$app->request->getBodyParams();
+
+        $nuevaNoticia = new Noticia($params);
+
+        if($nuevaNoticia->save()){
+          return [
+            "status" => true,
+            "noticia" => $nuevaNoticia
+          ];
+        }else{
+          throw new ServerErrorHttpException("No se pudo crear la noticia");
+        }
+      }
+
+      public function actionActualizar($id_noticia){
+        $params = Yii::$app->request->getBodyParams();
+
+        $noticia = Noticia::find()
+        ->where(["id" => $id_noticia])
+        ->one();
+
+        if($noticia->update(true, $params)){
+          return [
+            "status" => true,
+            "noticia_actualizada" => $noticia
+          ];
+        }else{
+          throw new ServerErrorHttpException("No se pudo actualizar la noticia");
+        }
       }
 }

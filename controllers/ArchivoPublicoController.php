@@ -1,11 +1,15 @@
 <?php
 
 namespace app\controllers;
+
+use app\models\ArchivoPublico;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\BadRequestHttpException;
 use yii\base\ExitException;
 use yii\filters\VerbFilter;
+use yii\web\ServerErrorHttpException;
+
 class ArchivoPublicoController extends \yii\web\Controller
 {
     public function init() {
@@ -42,10 +46,53 @@ class ArchivoPublicoController extends \yii\web\Controller
         $behaviors['verbs'] = [
           'class' => VerbFilter::className(),
           'actions' => [
-            
+            "eliminar" => ["post"]
           ],
         ];
         return $behaviors;
+      }
+
+
+      public static function crearArchivo($uploads, $idDirectorio, $nombreDirectorio){
+        $savedfiles = [];
+        $time = date("Y-m-d H:i:s");
+        $path = '../uploads/'.$nombreDirectorio.'/';
+        if(!file_exists($path)){
+          mkdir($path, 0777, true);
+        }
+        foreach ($uploads as $file){
+            $file->saveAs($path . $file->baseName . '.' . $file->extension);
+            $params = [
+              "id_directorio" => $idDirectorio,
+              "direccion" => '/uploads/'.$nombreDirectorio.'/'. $file->baseName . '.' . $file->extension,
+              "nombre" => $file->baseName,
+              "extension" => $file->extension,
+              "fecha_creacion" => $time,
+              "fecha_actualizacion" => $time
+            ];
+            $nuevoArchivo = new ArchivoPublico($params);
+            $nuevoArchivo->save();
+        }
+      }
+
+      public function actionEliminar($id_archivo){
+        $archivo = ArchivoPublico::find()
+        ->where(["id" => $id_archivo])
+        ->one();
+
+        if(!$archivo){
+          throw new ServerErrorHttpException("El archivo indicado no existe");
+        }
+
+        if($archivo->delete()){
+          unlink("..".$archivo->direccion);
+          return [
+            "status" => true,
+            "archivo" => $archivo
+          ];
+        }else{
+          throw new ServerErrorHttpException("Error al eliminar el archivo");
+        }
       }
 
 }

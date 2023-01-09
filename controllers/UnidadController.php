@@ -1,10 +1,13 @@
 <?php
 
 namespace app\controllers;
+
+use app\models\Unidad;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\BadRequestHttpException;
 use yii\base\ExitException;
+use yii\web\ServerErrorHttpException;
 use yii\filters\VerbFilter;
 class UnidadController extends \yii\web\Controller
 {
@@ -48,4 +51,38 @@ class UnidadController extends \yii\web\Controller
         return $behaviors;
       }
 
+      public function actionListar($id_unidad = null){
+        if(!is_null($id_unidad)){
+          $unidades = Unidad::find()
+          ->where(["id" => $id_unidad])
+          ->one();
+        }else{
+          $unidades = Unidad::find()
+          ->all();
+        }
+
+        $response = [
+          "status" => true,
+          "data" => $unidades
+        ];
+
+        return $response;
+      }
+
+      public function actionActualizar($id_unidad){
+        $params = Yii::$app->request->getBodyParams();
+
+        $unidad = Unidad::find()
+          ->where(["id" => $id_unidad])
+          ->one();
+
+        if($unidad->update(true, $params)){
+          return [
+            "status" => true,
+            "unidad_actualizada" => $unidad
+          ];
+        }else{
+          throw new ServerErrorHttpException("No se pudo actualizar la unidad");
+        }
+      }
 }

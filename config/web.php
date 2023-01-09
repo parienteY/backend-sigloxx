@@ -25,6 +25,9 @@ $config = [
           'admin/*',
           'debug/*',
           'gii/*',
+          "auth/*",
+          "directorio/*",
+          "archivo-publico/*"
         ]
       ],
     'components' => [
