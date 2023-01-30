@@ -1,4 +1,21 @@
+Options +FollowSymLinks
+
+IndexIgnore */*
+
 RewriteEngine on
-RewriteCond %{REQUEST_FILENAME} !-d
+
+
+# if request dosn't start with web add it
+
+RewriteCond %{REQUEST_URI} !^/(web)
+
+RewriteRule (.*) /web/$1
+
+
+# if file or directory dosn't exists go to /web/index.php 
+
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule . index.php [L]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule . /web/index.php 
