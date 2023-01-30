@@ -7,12 +7,14 @@ use Yii;
 /**
  * This is the model class for table "noticia".
  *
- * @property int $id
  * @property string $titulo
  * @property string|null $subtitulo
  * @property string $foto
  * @property string|null $archivos_adjuntos
  * @property int $id_unidad
+ * @property int $id
+ * @property string|null $fecha_creacion
+ * @property string|null $fecha_actualizacion
  *
  * @property Unidad $unidad
  */
@@ -32,12 +34,11 @@ class Noticia extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'titulo', 'foto', 'id_unidad'], 'required'],
-            [['id', 'id_unidad'], 'default', 'value' => null],
-            [['id', 'id_unidad'], 'integer'],
+            [['titulo', 'foto', 'id_unidad'], 'required'],
             [['titulo', 'subtitulo', 'foto'], 'string'],
-            [['archivos_adjuntos'], 'safe'],
-            [['id'], 'unique'],
+            [['archivos_adjuntos', 'fecha_creacion', 'fecha_actualizacion'], 'safe'],
+            [['id_unidad'], 'default', 'value' => null],
+            [['id_unidad'], 'integer'],
             [['id_unidad'], 'exist', 'skipOnError' => true, 'targetClass' => Unidad::class, 'targetAttribute' => ['id_unidad' => 'id']],
         ];
     }
@@ -48,12 +49,14 @@ class Noticia extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
             'titulo' => 'Titulo',
             'subtitulo' => 'Subtitulo',
             'foto' => 'Foto',
             'archivos_adjuntos' => 'Archivos Adjuntos',
             'id_unidad' => 'Id Unidad',
+            'id' => 'ID',
+            'fecha_creacion' => 'Fecha Creacion',
+            'fecha_actualizacion' => 'Fecha Actualizacion',
         ];
     }
 

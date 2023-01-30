@@ -1,6 +1,8 @@
 <?php
 
 namespace app\controllers;
+
+use app\models\Tiene;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\BadRequestHttpException;
@@ -48,4 +50,13 @@ class TieneController extends \yii\web\Controller
         return $behaviors;
       }
 
+      public static function crearTiene($params){
+        $nuevoTiene = new Tiene($params);
+
+        if($nuevoTiene->save()){
+          return true;
+        }else{
+          return false;
+        }
+      }
 }

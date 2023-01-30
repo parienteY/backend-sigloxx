@@ -45,7 +45,7 @@ class UnidadController extends \yii\web\Controller
         $behaviors['verbs'] = [
           'class' => VerbFilter::className(),
           'actions' => [
-           
+           "listar" => ["get"]
           ],
         ];
         return $behaviors;
@@ -61,12 +61,7 @@ class UnidadController extends \yii\web\Controller
           ->all();
         }
 
-        $response = [
-          "status" => true,
-          "data" => $unidades
-        ];
-
-        return $response;
+        return $unidades;
       }
 
       public function actionActualizar($id_unidad){

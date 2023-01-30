@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ArchivoPublico;
 use app\models\Noticia;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
@@ -9,6 +10,7 @@ use yii\web\BadRequestHttpException;
 use yii\base\ExitException;
 use yii\filters\VerbFilter;
 use yii\web\ServerErrorHttpException;
+use yii\web\UploadedFile;
 
 class NoticiaController extends \yii\web\Controller
 {
@@ -46,7 +48,9 @@ class NoticiaController extends \yii\web\Controller
         $behaviors['verbs'] = [
           'class' => VerbFilter::className(),
           'actions' => [
-            
+            "listar" => ["get"],
+            "crear" => ["post"],
+            "actualizar" => ["put"]
           ],
         ];
         return $behaviors;
@@ -58,24 +62,55 @@ class NoticiaController extends \yii\web\Controller
           ->where(["id"=>$id_noticia])
           ->all();
         }else{
+          $respuesta = [];
           $response = Noticia::find()->all();
+          foreach($response as $res){
+            if (!is_null($res->archivos_adjuntos)) {
+              $ids_ar = $res->archivos_adjuntos["archivos"];
+              $archivos = ArchivoPublico::find()
+                ->where(["id" => $ids_ar])
+                ->all();
+                $respuesta [] = [
+                  "id" => $res->id,
+                  "titulo" => $res->titulo,
+                  "subtitulo" => $res->subtitulo,
+                  "foto" => $res->foto,
+                  "archivos_adjuntos" => $archivos,
+                  "id_unidad" => $res->unidad->nombre,
+                  "fecha_actualizacion" => $res->fecha_actualizacion
+                ];
+            }
+          }
         }
 
-        return $response;
+        return $respuesta;
       }
 
       public function actionCrear(){
         $params = Yii::$app->request->getBodyParams();
+        $uploads = UploadedFile::getInstancesByName("files");
+        $time = date("Y-m-d H:i:s");
+        $body = [
+          "titulo" => $params["titulo"],
+          "subtitulo" => $params["subtitulo"],
+          "foto" => $params["foto"],
+          "id_unidad" => $params["id_unidad"],
+          "fecha_creacion" => $time,
+          "fecha_actualizacion" => $time
+          
+        ];
+        if(!is_null($uploads)){
+          $body["archivos_adjuntos"] = ArchivoPublicoController::crearAdjunto($uploads);
+        }
 
-        $nuevaNoticia = new Noticia($params);
-
+        $nuevaNoticia = new Noticia($body);
         if($nuevaNoticia->save()){
           return [
             "status" => true,
             "noticia" => $nuevaNoticia
           ];
         }else{
-          throw new ServerErrorHttpException("No se pudo crear la noticia");
+          return $nuevaNoticia->getErrors();
         }
       }
 
@@ -86,13 +121,17 @@ class NoticiaController extends \yii\web\Controller
         ->where(["id" => $id_noticia])
         ->one();
 
-        if($noticia->update(true, $params)){
-          return [
-            "status" => true,
-            "noticia_actualizada" => $noticia
-          ];
+        if($noticia){
+          if($noticia->load($params, '') && $noticia->save()){
+            return [
+              "status" => true,
+              "noticia_actualizada" => $noticia
+            ];
+          }else{
+            throw new ServerErrorHttpException("No se pudo actualizar la noticia");
+          }
         }else{
-          throw new ServerErrorHttpException("No se pudo actualizar la noticia");
+          throw new ServerErrorHttpException("No se pudo encontro la noticia");
         }
       }
 }

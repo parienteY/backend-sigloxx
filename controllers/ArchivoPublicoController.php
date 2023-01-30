@@ -75,6 +75,33 @@ class ArchivoPublicoController extends \yii\web\Controller
         }
       }
 
+      public static function crearAdjunto($uploads){
+        $savedfiles = [];
+        $time = date("Y-m-d H:i:s");
+        $path = '../uploads/noticias/';
+        if(!file_exists($path)){
+          mkdir($path, 0777, true);
+        }
+        foreach ($uploads as $file){
+            $file->saveAs($path . $file->baseName . '.' . $file->extension);
+            $params = [
+              "direccion" => '/uploads/noticias/'. $file->baseName . '.' . $file->extension,
+              "nombre" => $file->baseName,
+              "extension" => $file->type,
+              "fecha_creacion" => $time,
+              "fecha_actualizacion" => $time
+            ];
+            $nuevoArchivo = new ArchivoPublico($params);
+            if($nuevoArchivo->save()){
+              array_push($savedfiles, $nuevoArchivo->id);
+            }
+        }
+        return [
+          "archivos" => $savedfiles
+        ];
+      }
+
+
       public function actionEliminar($id_archivo){
         $archivo = ArchivoPublico::find()
         ->where(["id" => $id_archivo])

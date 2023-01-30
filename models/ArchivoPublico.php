@@ -8,7 +8,7 @@ use Yii;
  * This is the model class for table "archivo_publico".
  *
  * @property int $id
- * @property int $id_directorio
+ * @property int|null $id_directorio
  * @property string $direccion
  * @property string $nombre
  * @property string $extension
@@ -34,9 +34,9 @@ class ArchivoPublico extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_directorio', 'direccion', 'nombre', 'extension', 'fecha_creacion', 'fecha_actualizacion'], 'required'],
             [['id_directorio'], 'default', 'value' => null],
             [['id_directorio'], 'integer'],
+            [['direccion', 'nombre', 'extension', 'fecha_creacion', 'fecha_actualizacion'], 'required'],
             [['direccion', 'nombre', 'extension'], 'string'],
             [['fecha_creacion', 'fecha_actualizacion'], 'safe'],
             [['id_directorio'], 'exist', 'skipOnError' => true, 'targetClass' => Directorio::class, 'targetAttribute' => ['id_directorio' => 'id']],

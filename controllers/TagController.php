@@ -1,11 +1,15 @@
 <?php
 
 namespace app\controllers;
+
+use app\models\Tag;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\BadRequestHttpException;
 use yii\base\ExitException;
 use yii\filters\VerbFilter;
+use yii\web\ServerErrorHttpException;
+
 class TagController extends \yii\web\Controller
 {
     public function init() {
@@ -42,10 +46,46 @@ class TagController extends \yii\web\Controller
         $behaviors['verbs'] = [
           'class' => VerbFilter::className(),
           'actions' => [
-           
+           "crear" => ["post"],
+           "actualizar" => ["post"]
           ],
         ];
         return $behaviors;
       }
+
+      public function actionCrear(){
+        $params = Yii::$app->request->getBodyParams();
+
+        $nuevoTag = new Tag($params);
+
+        if($nuevoTag->save()){
+          return [
+            "status" => true,
+            "data" => $nuevoTag
+          ];
+        }else{
+          throw new ServerErrorHttpException("No se pudo crear el tag");
+        }
+      }
+      public function actionActualizar($nombre){
+        $params = Yii::$app->request->getBodyParams();
+
+        $tag = Tag::find()
+        ->where(["nombre" => $nombre])
+        ->one();
+
+        if($tag){
+          $tag->nombre = $params["nombre"];
+          $tag->save();
+          return [
+            "status" => true,
+            "data" => $tag
+          ];
+        }else{
+          throw new ServerErrorHttpException("No se pudo encontrar el tag indicado");
+        }
+      }
+
+
 
 }
