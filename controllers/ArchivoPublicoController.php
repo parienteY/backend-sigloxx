@@ -9,6 +9,7 @@ use yii\web\BadRequestHttpException;
 use yii\base\ExitException;
 use yii\filters\VerbFilter;
 use yii\web\ServerErrorHttpException;
+use yii\web\UploadedFile;
 
 class ArchivoPublicoController extends \yii\web\Controller
 {
@@ -55,8 +56,9 @@ class ArchivoPublicoController extends \yii\web\Controller
       }
 
 
-      public static function actionCrear($uploads, $id_unidad){
+      public static function actionCrear($id_unidad){
         $savedfiles = [];
+        $uploads = UploadedFile::getInstancesByName("files");
         $time = date("Y-m-d H:i:s");
         $path = '../uploads/public/';
         if(!file_exists($path)){
