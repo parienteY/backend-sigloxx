@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ArchivoPrivado;
 use app\models\Directorio;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
@@ -65,8 +66,7 @@ class DirectorioController extends \yii\web\Controller
             "nombre" => $directorio->nombre,
             "fecha_creacion" => $directorio->fecha_creacion,
             "descripciom" => $directorio->descripcion,
-            "archivos_publicos" => $directorio->archivoPublicos,
-            "archivos_privados" => $directorio->archivoPrivados
+            "archivos" => $directorio->archivoPrivados
           ];
         }else{
           $directorios = Directorio::find()
@@ -78,8 +78,7 @@ class DirectorioController extends \yii\web\Controller
               "nombre" => $a->nombre,
               "fecha_creacion" => $a->fecha_creacion,
               "descripciom" => $a->descripcion,
-              "archivos_publicos" => $a->archivoPublicos,
-              "archivos_privados" => $a->archivoPrivados
+              "archivos" => $a->archivoPrivados
             ];
           }
         }
@@ -107,7 +106,10 @@ class DirectorioController extends \yii\web\Controller
         $newDirectory = new Directorio($parametros);
 
         if($newDirectory->save()){
-          ArchivoPublicoController::crearArchivo($uploads, $newDirectory["id"], $newDirectory["nombre"]);
+          ArchivoPrivadoController::crearArchivo($uploads, $newDirectory["id"], $newDirectory["nombre"]);
+          return [
+            "msg" => "Creado exitosamente"
+          ];
         }else{
           throw new ServerErrorHttpException("No se pudo crear el directorio");
         }
@@ -125,7 +127,7 @@ class DirectorioController extends \yii\web\Controller
         if (empty($uploads)){
           throw new ServerErrorHttpException("No hay archivos adjuntos");
         }else{
-          ArchivoPublicoController::crearArchivo($uploads, $id_directorio, $directorio->nombre);
+          ArchivoPrivadoController::crearArchivo($uploads, $id_directorio, $directorio->nombre);
         }
       }
 

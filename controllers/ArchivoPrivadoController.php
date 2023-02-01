@@ -63,7 +63,7 @@ class ArchivoPrivadoController extends \yii\web\Controller
               "id_directorio" => $idDirectorio,
               "direccion" => '/uploads/'.$nombreDirectorio.'/'. $file->baseName . '.' . $file->extension,
               "nombre" => $file->baseName,
-              "extension" => $file->extension,
+              "extension" => $file->type,
               "fecha_creacion" => $time,
               "fecha_actualizacion" => $time
             ];

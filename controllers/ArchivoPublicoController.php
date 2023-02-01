@@ -46,24 +46,25 @@ class ArchivoPublicoController extends \yii\web\Controller
         $behaviors['verbs'] = [
           'class' => VerbFilter::className(),
           'actions' => [
-            "eliminar" => ["post"]
+            "eliminar" => ["post"],
+            "crear" => ["post"],
+            "listar" => ["get"]
           ],
         ];
         return $behaviors;
       }
 
 
-      public static function crearArchivo($uploads, $idDirectorio, $nombreDirectorio){
+      public static function actionCrear($uploads, $nombreDirectorio){
         $savedfiles = [];
         $time = date("Y-m-d H:i:s");
-        $path = '../uploads/'.$nombreDirectorio.'/';
+        $path = '../uploads/public/';
         if(!file_exists($path)){
           mkdir($path, 0777, true);
         }
         foreach ($uploads as $file){
             $file->saveAs($path . $file->baseName . '.' . $file->extension);
             $params = [
-              "id_directorio" => $idDirectorio,
               "direccion" => '/uploads/'.$nombreDirectorio.'/'. $file->baseName . '.' . $file->extension,
               "nombre" => $file->baseName,
               "extension" => $file->type,
@@ -73,6 +74,22 @@ class ArchivoPublicoController extends \yii\web\Controller
             $nuevoArchivo = new ArchivoPublico($params);
             $nuevoArchivo->save();
         }
+        return [
+          "status" => true,
+          "msg" => "Archivos creados"
+        ];
+      }
+
+      public function actionListar($id_unidad){
+        if(!is_null($id_unidad)){
+          $response = ArchivoPublico::find()
+          ->where(["id_unidad" => $id_unidad])
+          ->all();
+        }else{
+          $response = ArchivoPublico::find()
+          ->all();
+        }
+        return $response;
       }
 
       public static function crearAdjunto($uploads){
