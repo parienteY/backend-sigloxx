@@ -49,11 +49,43 @@ class DirectorioController extends \yii\web\Controller
           'class' => VerbFilter::className(),
           'actions' => [
             'crear' => ["post"],
-            'actualizar' => ["post"]
+            'actualizar' => ["post"],
+            'listar' => ["get"]
           ],
         ];
         return $behaviors;
       }
+
+      public function actionListar($id_unidad, $id_directorio = null){
+        if(!is_null($id_directorio)){
+          $directorio = Directorio::find()
+          ->where(["id" => $id_directorio, "id_unidad" => $id_unidad])
+          ->one();
+          $response = [
+            "nombre" => $directorio->nombre,
+            "fecha_creacion" => $directorio->fecha_creacion,
+            "descripciom" => $directorio->descripcion,
+            "archivos_publicos" => $directorio->archivoPublicos,
+            "archivos_privados" => $directorio->archivoPrivados
+          ];
+        }else{
+          $directorios = Directorio::find()
+          ->where(["id_unidad" => $id_unidad])
+          ->all();
+
+          foreach($directorios as $a){
+            $response []= [
+              "nombre" => $a->nombre,
+              "fecha_creacion" => $a->fecha_creacion,
+              "descripciom" => $a->descripcion,
+              "archivos_publicos" => $a->archivoPublicos,
+              "archivos_privados" => $a->archivoPrivados
+            ];
+          }
+        }
+        return $response;
+      }
+
 
       public function actionCrear(){
         $params = Yii::$app->request->getBodyParams();
