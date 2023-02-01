@@ -56,14 +56,14 @@ class NoticiaController extends \yii\web\Controller
         return $behaviors;
       }
 
-      public function actionListar($id_noticia = null){
+      public function actionListar($id_noticia = null, $id_unidad){
         if(!is_null($id_noticia)){
           $response = Noticia::find()
-          ->where(["id"=>$id_noticia])
+          ->where(["id"=>$id_noticia, "id_unidad" => $id_unidad])
           ->all();
         }else{
           $respuesta = [];
-          $response = Noticia::find()->all();
+          $response = Noticia::find()->where(["id_unidad" => $id_unidad])->all();
           foreach($response as $res){
             if (!is_null($res->archivos_adjuntos)) {
               $ids_ar = $res->archivos_adjuntos["archivos"];

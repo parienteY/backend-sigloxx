@@ -83,7 +83,7 @@ class ArchivoPublicoController extends \yii\web\Controller
         ];
       }
 
-      public function actionListar($id_unidad){
+      public function actionListar($id_unidad = null){
         if(!is_null($id_unidad)){
           $response = ArchivoPublico::find()
           ->where(["id_unidad" => $id_unidad])
