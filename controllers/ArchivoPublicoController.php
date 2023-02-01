@@ -55,7 +55,7 @@ class ArchivoPublicoController extends \yii\web\Controller
       }
 
 
-      public static function actionCrear($uploads, $nombreDirectorio){
+      public static function actionCrear($uploads, $id_unidad){
         $savedfiles = [];
         $time = date("Y-m-d H:i:s");
         $path = '../uploads/public/';
@@ -65,7 +65,8 @@ class ArchivoPublicoController extends \yii\web\Controller
         foreach ($uploads as $file){
             $file->saveAs($path . $file->baseName . '.' . $file->extension);
             $params = [
-              "direccion" => '/uploads/'.$nombreDirectorio.'/'. $file->baseName . '.' . $file->extension,
+              "direccion" => '/uploads/public/'. $file->baseName . '.' . $file->extension,
+              "id_unidad" => $id_unidad,
               "nombre" => $file->baseName,
               "extension" => $file->type,
               "fecha_creacion" => $time,
