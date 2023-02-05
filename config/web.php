@@ -33,7 +33,9 @@ $config = [
           "user/*",
           "unidad/*",
           "noticia/*",
-          "tiene/*"
+          "tiene/*",
+          "public/*",
+          "web/*"
         ]
       ],
     'components' => [

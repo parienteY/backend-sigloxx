@@ -49,7 +49,6 @@ class ArchivoPublicoController extends \yii\web\Controller
           'actions' => [
             "eliminar" => ["post"],
             "crear" => ["post"],
-            "listar" => ["get"]
           ],
         ];
         return $behaviors;
@@ -60,14 +59,21 @@ class ArchivoPublicoController extends \yii\web\Controller
         $savedfiles = [];
         $uploads = UploadedFile::getInstancesByName("files");
         $time = date("Y-m-d H:i:s");
-        $path = '../uploads/public/';
+        $path = '../web/uploads/public/';
         if(!file_exists($path)){
           mkdir($path, 0777, true);
         }
         foreach ($uploads as $file){
+          if(!file_exists($path . $file->baseName . '.' . $file->extension)){
+            $file->saveAs($path . $file->baseName . '.' . $file->extension);
+            $basename = $file->baseName;
+          }else{
+            $file->saveAs($path . $file->baseName . '(1).' . $file->extension);
+            $basename = $file->baseName. '(1)';
+          }
             $file->saveAs($path . $file->baseName . '.' . $file->extension);
             $params = [
-              "direccion" => '/uploads/public/'. $file->baseName . '.' . $file->extension,
+              "direccion" => '/uploads/public/'. $basename . '.' . $file->extension,
               "id_unidad" => $id_unidad,
               "nombre" => $file->baseName,
               "extension" => $file->type,
@@ -83,29 +89,34 @@ class ArchivoPublicoController extends \yii\web\Controller
         ];
       }
 
-      public function actionListar($id_unidad = null){
-        if(!is_null($id_unidad)){
-          $response = ArchivoPublico::find()
-          ->where(["id_unidad" => $id_unidad])
-          ->all();
+      public static function eliminarAdjunto($id){
+        $archivo = ArchivoPublico::find()->where(['id' => $id])->one();
+
+        if($archivo->delete()){
+          unlink("../web".$archivo->direccion);
+          return true;
         }else{
-          $response = ArchivoPublico::find()
-          ->all();
+          return false;
         }
-        return $response;
       }
 
       public static function crearAdjunto($uploads){
         $savedfiles = [];
         $time = date("Y-m-d H:i:s");
-        $path = '../uploads/noticias/';
+        $path = '../web/uploads/noticias/';
         if(!file_exists($path)){
           mkdir($path, 0777, true);
         }
         foreach ($uploads as $file){
+          if(!file_exists($path . $file->baseName . '.' . $file->extension)){
             $file->saveAs($path . $file->baseName . '.' . $file->extension);
+            $basename = $file->baseName;
+          }else{
+            $file->saveAs($path . $file->baseName . '(1).' . $file->extension);
+            $basename = $file->baseName. '(1)';
+          }
             $params = [
-              "direccion" => '/uploads/noticias/'. $file->baseName . '.' . $file->extension,
+              "direccion" => '/uploads/noticias/'. $basename . '.' . $file->extension,
               "nombre" => $file->baseName,
               "extension" => $file->type,
               "fecha_creacion" => $time,
@@ -132,7 +143,7 @@ class ArchivoPublicoController extends \yii\web\Controller
         }
 
         if($archivo->delete()){
-          unlink("..".$archivo->direccion);
+          unlink("../web".$archivo->direccion);
           return [
             "status" => true,
             "archivo" => $archivo

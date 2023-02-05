@@ -53,15 +53,21 @@ class ArchivoPrivadoController extends \yii\web\Controller
       public static function crearArchivo($uploads, $idDirectorio, $nombreDirectorio){
         $savedfiles = [];
         $time = date("Y-m-d H:i:s");
-        $path = '../uploads/'.$nombreDirectorio.'/';
+        $path = '../web/uploads/'.$nombreDirectorio.'/';
         if(!file_exists($path)){
           mkdir($path, 0777, true);
         }
         foreach ($uploads as $file){
+          if(!file_exists($path . $file->baseName . '.' . $file->extension)){
             $file->saveAs($path . $file->baseName . '.' . $file->extension);
+            $basename = $file->baseName;
+          }else{
+            $file->saveAs($path . $file->baseName . '(1).' . $file->extension);
+            $basename = $file->baseName. '(1)';
+          }
             $params = [
               "id_directorio" => $idDirectorio,
-              "direccion" => '/uploads/'.$nombreDirectorio.'/'. $file->baseName . '.' . $file->extension,
+              "direccion" => '/uploads/'.$nombreDirectorio.'/'. $basename . '.' . $file->extension,
               "nombre" => $file->baseName,
               "extension" => $file->type,
               "fecha_creacion" => $time,
@@ -82,7 +88,7 @@ class ArchivoPrivadoController extends \yii\web\Controller
         }
 
         if($archivo->delete()){
-          unlink("..".$archivo->direccion);
+          unlink("../web".$archivo->direccion);
           return [
             "status" => true,
             "archivo" => $archivo

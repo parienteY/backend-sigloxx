@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\ArchivoPublico;
 use app\models\Noticia;
+use PHPUnit\Framework\Error\Notice;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\BadRequestHttpException;
@@ -26,7 +27,7 @@ class NoticiaController extends \yii\web\Controller
       public function beforeAction($action) {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         if (Yii::$app->getRequest()->getMethod() === 'OPTIONS') {
-          Yii::$app->getResponse()->getHeaders()->set('Allow', 'POST GET PUT');
+          Yii::$app->getResponse()->getHeaders()->set('Allow', 'POST GET PUT DELETE');
           Yii::$app->end();
         }
   
@@ -48,43 +49,17 @@ class NoticiaController extends \yii\web\Controller
         $behaviors['verbs'] = [
           'class' => VerbFilter::className(),
           'actions' => [
-            "listar" => ["get"],
             "crear" => ["post"],
-            "actualizar" => ["put"]
+            "actualizar" => ["put"],
+            "eliminar" => ["delete"],
+            "eliminar-adjunto" => ["put"],
+            "agregar-adjuntos" => ["post"]
           ],
         ];
         return $behaviors;
       }
 
-      public function actionListar($id_noticia = null, $id_unidad){
-        if(!is_null($id_noticia)){
-          $response = Noticia::find()
-          ->where(["id"=>$id_noticia, "id_unidad" => $id_unidad])
-          ->all();
-        }else{
-          $respuesta = [];
-          $response = Noticia::find()->where(["id_unidad" => $id_unidad])->all();
-          foreach($response as $res){
-            if (!is_null($res->archivos_adjuntos)) {
-              $ids_ar = $res->archivos_adjuntos["archivos"];
-              $archivos = ArchivoPublico::find()
-                ->where(["id" => $ids_ar])
-                ->all();
-                $respuesta [] = [
-                  "id" => $res->id,
-                  "titulo" => $res->titulo,
-                  "subtitulo" => $res->subtitulo,
-                  "foto" => $res->foto,
-                  "archivos_adjuntos" => $archivos,
-                  "id_unidad" => $res->unidad->nombre,
-                  "fecha_actualizacion" => $res->fecha_actualizacion
-                ];
-            }
-          }
-        }
-
-        return $respuesta;
-      }
+     
 
       public function actionCrear(){
         $params = Yii::$app->request->getBodyParams();
@@ -132,6 +107,85 @@ class NoticiaController extends \yii\web\Controller
           }
         }else{
           throw new ServerErrorHttpException("No se pudo encontro la noticia");
+        }
+      }
+
+      public function actionEliminar($id){
+        $noticia = Noticia::find()->where(["id" => $id])->one();
+        if($noticia){
+            if (!is_null($noticia->archivos_adjuntos)) {
+              $ids_ar = $noticia->archivos_adjuntos["archivos"];
+              foreach($ids_ar as $doc){
+                $archivo = ArchivoPublico::find()->where(["id" => $doc])->one();
+                if($archivo){
+                 if($archivo->delete()){
+                   unlink("../web".$archivo->direccion);
+                 }
+                }
+              }
+              if($noticia->delete()){
+                return [
+                  "status" => true,
+                  "msg" => "La noticia ha sido eliminada"
+                ];
+              }else{
+                throw new ServerErrorHttpException("Error al eliminar la noticia");
+              }
+            }
+        }else{
+          throw new ServerErrorHttpException("Noticia no encontrada");
+        }
+      }
+
+      public function actionEliminarAdjunto($id, $id_adjunto){
+        $eliminado = ArchivoPublicoController::eliminarAdjunto($id_adjunto);
+
+        if($eliminado){
+          $noticia = Noticia::find()->where(["id" => $id])->one();
+          if($noticia){
+            $ids = $noticia->archivos_adjuntos["archivos"];
+            if (($clave = array_search($id_adjunto, $ids)) !== false) {
+              unset($ids[$clave]);
+            }
+            $noticia->archivos_adjuntos = [
+              "archivos" => $ids
+            ];
+            if($noticia->save()){
+              return [
+                "status" => true,
+                "msg" => "Archivo eliminado"
+              ];
+            }
+          }
+        }else{
+          throw new ServerErrorHttpException("Error al eliminar el archivo");
+        }
+      }
+
+      public function actionAgregarAdjuntos($id){
+        $uploads = UploadedFile::getInstancesByName("files");
+        if(!is_null($uploads)){
+          $noticia = Noticia::find()->where(["id" => $id])->one();
+          if($noticia){
+            $adjuntos = ArchivoPublicoController::crearAdjunto($uploads);
+            $adjuntosNoticia = $noticia->archivos_adjuntos;
+            $merged = array_merge($adjuntos["archivos"], $adjuntosNoticia["archivos"]);
+            $noticia->archivos_adjuntos = [
+              "archivos" => $merged
+            ];
+            if($noticia->save()){
+              return [
+                "status" => true,
+                "msg" => "Archivos anadidos"
+              ];
+            }else{
+              throw new ServerErrorHttpException("No ha anadido un archivo");
+            }
+          }else{
+            throw new ServerErrorHttpException("Noticia no encontrada");
+          }
+        }else{
+          throw new ServerErrorHttpException("No ha anadido un archivo");
         }
       }
 }
