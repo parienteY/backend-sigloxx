@@ -62,33 +62,36 @@ class PublicController extends \yii\web\Controller
         return $response;
      }
 
-     public function actionListarNoticias($id_noticia = "all", $id_unidad){
+     public function actionListarNoticias($id_noticia = "all", $id_unidad = 'all'){
+       $respuesta = [];
         if($id_noticia !== "all"){
           $response = Noticia::find()
-          ->where(["id"=>$id_noticia, "id_unidad" => $id_unidad])
+          ->where(["id"=>$id_noticia])
           ->all();
         }else{
-          $respuesta = [];
-          $response = Noticia::find()->where(["id_unidad" => $id_unidad])->all();
-          foreach($response as $res){
-            if (!is_null($res->archivos_adjuntos)) {
-              $ids_ar = $res->archivos_adjuntos["archivos"];
-              $archivos = ArchivoPublico::find()
-                ->where(["id" => $ids_ar])
-                ->all();
-                $respuesta [] = [
-                  "id" => $res->id,
-                  "titulo" => $res->titulo,
-                  "subtitulo" => $res->subtitulo,
-                  "foto" => $res->foto,
-                  "archivos_adjuntos" => $archivos,
-                  "id_unidad" => $res->unidad->nombre,
-                  "fecha_actualizacion" => $res->fecha_actualizacion
-                ];
-            }
+          if($id_unidad !== 'all'){
+            $response = Noticia::find()->where(["id_unidad" => $id_unidad])->all();
+          }else{
+            $response = Noticia::find()->all();
           }
         }
-
+        foreach($response as $res){
+          if (!is_null($res->archivos_adjuntos)) {
+            $ids_ar = $res->archivos_adjuntos["archivos"];
+            $archivos = ArchivoPublico::find()
+              ->where(["id" => $ids_ar])
+              ->all();
+              $respuesta [] = [
+                "id" => $res->id,
+                "titulo" => $res->titulo,
+                "subtitulo" => $res->subtitulo,
+                "foto" => $res->foto,
+                "archivos_adjuntos" => $archivos,
+                "id_unidad" => $res->unidad->nombre,
+                "fecha_actualizacion" => $res->fecha_actualizacion
+              ];
+          }
+        }
         return $respuesta;
       }
      public function actionInfoUnidades($id_unidad = "all"){
