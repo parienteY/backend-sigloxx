@@ -51,8 +51,8 @@ class UnidadController extends \yii\web\Controller
         return $behaviors;
       }
 
-      public function actionListar($id_unidad = null){
-        if(!is_null($id_unidad)){
+      public function actionListar($id_unidad = "all"){
+        if($id_unidad !== "all"){
           $unidades = Unidad::find()
           ->where(["id" => $id_unidad])
           ->one();

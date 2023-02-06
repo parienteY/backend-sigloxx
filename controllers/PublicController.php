@@ -33,9 +33,9 @@ class PublicController extends \yii\web\Controller
       }
   
 
-     public function actionListarArchivosPublicos($id_unidad = null){
+     public function actionListarArchivosPublicos($id_unidad = "all"){
 
-        if(!is_null($id_unidad)){
+        if($id_unidad !== "all"){
             $archivos = ArchivoPublico::find()->where(["id_unidad" => $id_unidad])->one();
         }else{
             $archivos = ArchivoPublico::find()->all();
@@ -43,8 +43,8 @@ class PublicController extends \yii\web\Controller
         return $archivos;
      }
 
-     public function actionListarNoticias($id_noticia = null, $id_unidad){
-        if(!is_null($id_noticia)){
+     public function actionListarNoticias($id_noticia = "all", $id_unidad){
+        if($id_noticia !== "all"){
           $response = Noticia::find()
           ->where(["id"=>$id_noticia, "id_unidad" => $id_unidad])
           ->all();
@@ -72,8 +72,8 @@ class PublicController extends \yii\web\Controller
 
         return $respuesta;
       }
-     public function actionInfoUnidades($id_unidad = null){
-        if(!is_null($id_unidad)){
+     public function actionInfoUnidades($id_unidad = "all"){
+        if($id_unidad !== "all"){
             $unidades = Unidad::find()
             ->where(["id_unidad" => $id_unidad ])
             ->all();

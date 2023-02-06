@@ -57,8 +57,8 @@ class DirectorioController extends \yii\web\Controller
         return $behaviors;
       }
 
-      public function actionListar($id_unidad, $id_directorio = null){
-        if(!is_null($id_directorio)){
+      public function actionListar($id_unidad, $id_directorio = "all"){
+        if($id_directorio !== "all"){
           $directorio = Directorio::find()
           ->where(["id" => $id_directorio, "id_unidad" => $id_unidad])
           ->one();
