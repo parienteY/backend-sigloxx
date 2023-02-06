@@ -40,7 +40,26 @@ class PublicController extends \yii\web\Controller
         }else{
             $archivos = ArchivoPublico::find()->all();
         }
-        return $archivos;
+        foreach($archivos  as $a){
+          
+          if(!is_null($a->unidad)){
+            $unidad = $a->unidad->nombre;
+          }else{
+            $unidad = null;
+          }
+
+          $response []= [
+            "id" => $a->id,
+            "id_unidad" => $a->id_unidad,
+            "direccion" => $a->direccion,
+            "nombre" => $a->nombre,
+            "extension" => $a->extension,
+            'fecha_creacion' => $a->fecha_creacion,
+            "fecha_actualizacion" => $a->fecha_actualizacion,
+            "nombre_unidad" => $unidad
+          ];
+        }
+        return $response;
      }
 
      public function actionListarNoticias($id_noticia = "all", $id_unidad){

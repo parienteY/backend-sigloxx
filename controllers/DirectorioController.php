@@ -58,15 +58,19 @@ class DirectorioController extends \yii\web\Controller
       }
 
       public function actionListar($id_unidad, $id_directorio = "all"){
+
         if($id_directorio !== "all"){
           $directorio = Directorio::find()
           ->where(["id" => $id_directorio, "id_unidad" => $id_unidad])
           ->one();
           $response = [
+            "id" => $directorio->id,
             "nombre" => $directorio->nombre,
             "fecha_creacion" => $directorio->fecha_creacion,
             "descripciom" => $directorio->descripcion,
-            "archivos" => $directorio->archivoPrivados
+            "archivos" => $directorio->archivoPrivados,
+            "nombre_unidad" => $directorio->unidad->nombre,
+            "id_unidad" => $directorio->id_unidad
           ];
         }else{
           $directorios = Directorio::find()
@@ -75,10 +79,13 @@ class DirectorioController extends \yii\web\Controller
 
           foreach($directorios as $a){
             $response []= [
+              "id" => $a->id,
               "nombre" => $a->nombre,
               "fecha_creacion" => $a->fecha_creacion,
               "descripciom" => $a->descripcion,
-              "archivos" => $a->archivoPrivados
+              "archivos" => $a->archivoPrivados,
+              "id_unidad" => $a->id_unidad,
+              "nombre_unidad" => $a->unidad->nombre
             ];
           }
         }
