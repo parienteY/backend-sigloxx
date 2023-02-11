@@ -25,7 +25,7 @@ class UserController extends \yii\web\Controller
       public function beforeAction($action) {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         if (Yii::$app->getRequest()->getMethod() === 'OPTIONS') {
-          Yii::$app->getResponse()->getHeaders()->set('Allow', 'POST GET PUT');
+          Yii::$app->getResponse()->getHeaders()->set('Allow', 'POST GET PUT DELETE');
           Yii::$app->end();
         }
   
@@ -48,8 +48,10 @@ class UserController extends \yii\web\Controller
           'class' => VerbFilter::className(),
           'actions' => [
             "cuanta" => ["get"],
-            "lista" => ["get"],
-            "registro" => ["post"]
+            "listar" => ["get"],
+            "registro" => ["post"],
+            "actualizar" => ["put"],
+            "eliminar" => ["delete"]
           ],
         ];
         return $behaviors;
@@ -92,9 +94,25 @@ class UserController extends \yii\web\Controller
       }
 
       public function actionListar(){
-        return User::find()
+        $usuarios = User::find()
+        ->where(["removed" =>  null])
         ->all();
-        
+        $response = [];
+        foreach ($usuarios as $u) {
+          $response []= [
+            "id" => $u->id,
+            "email" => $u->email,
+            "nombres" => $u->nombres,
+            "apellidos" => $u->apellidos,
+            "picture" => $u->picture,
+            "ci" => $u->ci,
+            "created_at" => $u->created_at,
+            "tag_rol" => $u->tag_rol,
+            "updated_at" => $u->updated_at,
+            "unidad" => $u->unidad
+          ];
+        }
+        return $response;
       }
       protected function asignarRol($id, $rols) {
         $auth = Yii::$app->authManager;
@@ -164,5 +182,90 @@ class UserController extends \yii\web\Controller
           throw new ServerErrorHttpException("El correo electronico ya esta en uso, use una diferente");
         }
         return $r;
+      }
+
+      public function actionActualizar($id = null) {
+        $r = null;
+        $params = Yii::$app->request->getBodyParams();
+        $params['updated_at'] = date("Y-m-d H:i:s");
+        $user = User::findOne(Yii::$app->user->identity->id);
+  
+        if (!is_null($id) ) {
+          if ($model = User::findOne(['id' => $id, 'removed' => null])) {
+            if ($model->load($params, '') && $model->save()) {
+              $r = ["status" => false, "msg" => "Se actualizo el usuario",];
+            } else {
+              throw new ServerErrorHttpException("Algo salio mal, vuelva a intentarlo");
+            }
+          } else {
+            throw new ServerErrorHttpException("El usuario no existe");
+          }
+        } else {
+          if ($user && $user->load($params, '') && $user->save()) {
+            $r = ["status" => false, "msg" => "Se actualizo la cuenta",];
+          } else {
+            throw new ServerErrorHttpException("Algo salio mal, vuelva a intentarlo");
+          }
+        }
+        return $r;
+      }
+
+
+      public function actionEliminar($id) {
+        $r = null;
+        $roles = Yii::$app->authManager->getRolesByUser(Yii::$app->user->identity->id);
+        $removed["removed"] = date("Y-m-d H:i:s");
+        if ($model = User::findOne(['id' => $id, 'removed' => null])) {
+          $roles2 = Yii::$app->authManager->getRolesByUser($model->id);
+            if ($model->load($removed, '') && $model->save()) {
+              $r = ["status" => false, "msg" => "Se elimino el usuario",];
+            } else {
+              throw new ServerErrorHttpException("Hubo un error al tratar de eliminar el usuario");
+            }
+        } else {
+          throw new ServerErrorHttpException("No existe el usuario");
+        }
+        return $r;
+      }
+
+      public function actionFiltro($search = "all", $unidad = "all", $rol = "all"){
+        $searchUnidad = [];
+        $searchWhere = [];
+        $searchRol = [];
+
+        if($search !== "all"){
+          $searchWhere = [
+            'or',
+            ['ilike', 'user.email', $search],
+            ['ilike', 'user.nombres', $search],
+            ['ilike', 'user.apellidos', $search],
+          ];
+        }
+        if($unidad !== "all"){
+          $searchUnidad = ["id_unidad" => $unidad];
+        }
+
+        if($rol !== "all"){
+          $searchRol = ["tag_rol" => $rol];
+        }
+
+        $users = User::find()->where($searchUnidad)->andWhere($searchRol)->andFilterWhere($searchWhere)->all();
+
+        $response = [];
+        foreach ($users as $u) {
+          $response []= [
+            "id" => $u->id,
+            "email" => $u->email,
+            "nombres" => $u->nombres,
+            "apellidos" => $u->apellidos,
+            "picture" => $u->picture,
+            "ci" => $u->ci,
+            "created_at" => $u->created_at,
+            "tag_rol" => $u->tag_rol,
+            "updated_at" => $u->updated_at,
+            "unidad" => $u->unidad
+          ];
+        }
+        return $response;
       }
 }

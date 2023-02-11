@@ -188,4 +188,42 @@ class NoticiaController extends \yii\web\Controller
           throw new ServerErrorHttpException("No ha anadido un archivo");
         }
       }
+
+      public function actionFiltro($search = "all", $unidad = "all"){
+        $searchUnidad = [];
+        $searchWhere = [];
+        $response = [];
+        $respuesta = [];
+        if($search !== "all"){
+          $searchWhere = [
+            'or',
+            ['ilike', 'noticia.titulo', $search],
+            ['ilike', 'noticia.subtitulo', $search],
+          ];
+        }
+        if($unidad !== "all"){
+          $searchUnidad = ["id_unidad" => $unidad];
+        }
+
+        $response = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->all();
+
+        foreach($response as $res){
+          if (!is_null($res->archivos_adjuntos)) {
+            $ids_ar = $res->archivos_adjuntos["archivos"];
+            $archivos = ArchivoPublico::find()
+              ->where(["id" => $ids_ar])
+              ->all();
+              $respuesta [] = [
+                "id" => $res->id,
+                "titulo" => $res->titulo,
+                "subtitulo" => $res->subtitulo,
+                "foto" => $res->foto,
+                "archivos_adjuntos" => $archivos,
+                "id_unidad" => $res->unidad->nombre,
+                "fecha_actualizacion" => $res->fecha_actualizacion
+              ];
+          }
+        }
+        return $respuesta;
+      }
 }

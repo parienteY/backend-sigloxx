@@ -23,7 +23,7 @@ class ArchivoPrivadoController extends \yii\web\Controller
       public function beforeAction($action) {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         if (Yii::$app->getRequest()->getMethod() === 'OPTIONS') {
-          Yii::$app->getResponse()->getHeaders()->set('Allow', 'POST GET PUT');
+          Yii::$app->getResponse()->getHeaders()->set('Allow', 'POST GET PUT DELETE');
           Yii::$app->end();
         }
   
@@ -45,7 +45,7 @@ class ArchivoPrivadoController extends \yii\web\Controller
         $behaviors['verbs'] = [
           'class' => VerbFilter::className(),
           'actions' => [
-            
+            "eliminar" => ["delete"]
           ],
         ];
         return $behaviors;
@@ -69,7 +69,8 @@ class ArchivoPrivadoController extends \yii\web\Controller
               "id_directorio" => $idDirectorio,
               "direccion" => '/uploads/'.$nombreDirectorio.'/'. $basename . '.' . $file->extension,
               "nombre" => $file->baseName,
-              "extension" => $file->type,
+              "extension" => $file->extension,
+              "type" => $file->type,
               "fecha_creacion" => $time,
               "fecha_actualizacion" => $time
             ];
@@ -96,5 +97,11 @@ class ArchivoPrivadoController extends \yii\web\Controller
         }else{
           throw new ServerErrorHttpException("Error al eliminar el archivo");
         }
+      }
+
+      public function actionObtenerArchivo($id){
+        $archivo = ArchivoPrivado::find()->where(["id" => $id])->one();
+
+        Yii::$app->response->sendFile("../web".$archivo["direccion"], $archivo["nombre"], ['inline' => false])->send();
       }
 }

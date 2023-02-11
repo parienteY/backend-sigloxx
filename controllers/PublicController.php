@@ -34,7 +34,7 @@ class PublicController extends \yii\web\Controller
   
 
      public function actionListarArchivosPublicos($id_unidad = "all"){
-
+      $response = [];
         if($id_unidad !== "all"){
             $archivos = ArchivoPublico::find()->where(["id_unidad" => $id_unidad])->one();
         }else{

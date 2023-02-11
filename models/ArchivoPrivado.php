@@ -14,6 +14,7 @@ use Yii;
  * @property string $extension
  * @property string|null $fecha_creacion
  * @property string|null $fecha_actualizacion
+ * @property string|null $type
  *
  * @property Directorio $directorio
  * @property Tiene[] $tienes
@@ -37,9 +38,10 @@ class ArchivoPrivado extends \yii\db\ActiveRecord
             [['id_directorio', 'direccion', 'extension'], 'required'],
             [['id_directorio'], 'default', 'value' => null],
             [['id_directorio'], 'integer'],
-            [['nombre', 'direccion', 'extension'], 'string'],
+            [['nombre', 'direccion', 'extension', 'type'], 'string'],
             [['fecha_creacion', 'fecha_actualizacion'], 'safe'],
             [['id_directorio'], 'exist', 'skipOnError' => true, 'targetClass' => Directorio::class, 'targetAttribute' => ['id_directorio' => 'id']],
+            
         ];
     }
 
@@ -56,6 +58,7 @@ class ArchivoPrivado extends \yii\db\ActiveRecord
             'extension' => 'Extension',
             'fecha_creacion' => 'Fecha Creacion',
             'fecha_actualizacion' => 'Fecha Actualizacion',
+            'type' => 'Type',
         ];
     }
 

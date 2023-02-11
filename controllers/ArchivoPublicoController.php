@@ -76,7 +76,8 @@ class ArchivoPublicoController extends \yii\web\Controller
               "direccion" => '/uploads/public/'. $basename . '.' . $file->extension,
               "id_unidad" => $id_unidad,
               "nombre" => $file->baseName,
-              "extension" => $file->type,
+              "extension" => $file->extension,
+              "type" => $file->type,
               "fecha_creacion" => $time,
               "fecha_actualizacion" => $time
             ];
@@ -118,7 +119,8 @@ class ArchivoPublicoController extends \yii\web\Controller
             $params = [
               "direccion" => '/uploads/noticias/'. $basename . '.' . $file->extension,
               "nombre" => $file->baseName,
-              "extension" => $file->type,
+              "extension" => $file->extension,
+              "type" => $file->type,
               "fecha_creacion" => $time,
               "fecha_actualizacion" => $time
             ];

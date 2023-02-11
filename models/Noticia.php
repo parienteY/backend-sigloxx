@@ -12,9 +12,9 @@ use Yii;
  * @property string $foto
  * @property string|null $archivos_adjuntos
  * @property int $id_unidad
- * @property int $id
  * @property string|null $fecha_creacion
  * @property string|null $fecha_actualizacion
+ * @property int $id
  *
  * @property Unidad $unidad
  */
@@ -54,9 +54,9 @@ class Noticia extends \yii\db\ActiveRecord
             'foto' => 'Foto',
             'archivos_adjuntos' => 'Archivos Adjuntos',
             'id_unidad' => 'Id Unidad',
-            'id' => 'ID',
             'fecha_creacion' => 'Fecha Creacion',
             'fecha_actualizacion' => 'Fecha Actualizacion',
+            'id' => 'ID',
         ];
     }
 

@@ -14,9 +14,10 @@ use Yii;
  * @property string $extension
  * @property string $fecha_creacion
  * @property string $fecha_actualizacion
+ * @property string|null $type
  *
  * @property Tiene[] $tienes
- * @property Unidad $unidad
+ * @property Directorio $unidad
  */
 class ArchivoPublico extends \yii\db\ActiveRecord
 {
@@ -37,9 +38,9 @@ class ArchivoPublico extends \yii\db\ActiveRecord
             [['id_unidad'], 'default', 'value' => null],
             [['id_unidad'], 'integer'],
             [['direccion', 'nombre', 'extension', 'fecha_creacion', 'fecha_actualizacion'], 'required'],
-            [['direccion', 'nombre', 'extension'], 'string'],
+            [['direccion', 'nombre', 'extension', 'type'], 'string'],
             [['fecha_creacion', 'fecha_actualizacion'], 'safe'],
-            [['id_unidad'], 'exist', 'skipOnError' => true, 'targetClass' => Unidad::class, 'targetAttribute' => ['id_unidad' => 'id']],
+            [['id_unidad'], 'exist', 'skipOnError' => true, 'targetClass' => Directorio::class, 'targetAttribute' => ['id_unidad' => 'id']],
         ];
     }
 
@@ -56,6 +57,7 @@ class ArchivoPublico extends \yii\db\ActiveRecord
             'extension' => 'Extension',
             'fecha_creacion' => 'Fecha Creacion',
             'fecha_actualizacion' => 'Fecha Actualizacion',
+            'type' => 'Type',
         ];
     }
 
@@ -76,6 +78,6 @@ class ArchivoPublico extends \yii\db\ActiveRecord
      */
     public function getUnidad()
     {
-        return $this->hasOne(Unidad::class, ['id' => 'id_unidad']);
+        return $this->hasOne(Directorio::class, ['id' => 'id_unidad']);
     }
 }

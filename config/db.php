@@ -1,6 +1,12 @@
 <?php
 
 return [
+
+    // 'class' => 'yii\db\Connection',
+    // 'dsn' => 'pgsql:host=localhost;dbname=gd_odontologia',
+    // 'username' => 'siglo',
+    // 'password' => '123456',
+    // 'charset' => 'utf8',
     'class' => 'yii\db\Connection',
     'dsn' => 'pgsql:host=motty.db.elephantsql.com;dbname=hoexggye',
     'username' => 'hoexggye',

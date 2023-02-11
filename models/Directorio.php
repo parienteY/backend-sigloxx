@@ -40,6 +40,7 @@ class Directorio extends \yii\db\ActiveRecord
             [['id_unidad'], 'default', 'value' => null],
             [['id_unidad'], 'integer'],
             [['id_unidad'], 'exist', 'skipOnError' => true, 'targetClass' => Unidad::class, 'targetAttribute' => ['id_unidad' => 'id']],
+            
         ];
     }
 

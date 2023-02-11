@@ -13,6 +13,8 @@ use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
 use yii\web\ServerErrorHttpException;
 use app\models\User;
+use yii\helpers\FileHelper;
+
 class DirectorioController extends \yii\web\Controller
 {
     public function init() {
@@ -27,7 +29,7 @@ class DirectorioController extends \yii\web\Controller
       public function beforeAction($action) {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         if (Yii::$app->getRequest()->getMethod() === 'OPTIONS') {
-          Yii::$app->getResponse()->getHeaders()->set('Allow', 'POST GET PUT');
+          Yii::$app->getResponse()->getHeaders()->set('Allow', 'POST GET PUT DELETE');
           Yii::$app->end();
         }
   
@@ -51,14 +53,15 @@ class DirectorioController extends \yii\web\Controller
           'actions' => [
             'crear' => ["post"],
             'actualizar' => ["post"],
-            'listar' => ["get"]
+            'listar' => ["get"],
+            'eliminar' => ["delete"]
           ],
         ];
         return $behaviors;
       }
 
       public function actionListar($id_unidad, $id_directorio = "all"){
-
+        $response = [];
         if($id_directorio !== "all"){
           $directorio = Directorio::find()
           ->where(["id" => $id_directorio, "id_unidad" => $id_unidad])
@@ -124,18 +127,72 @@ class DirectorioController extends \yii\web\Controller
         
       }
 
-      public function actionActualizar($id_directorio){
+      public function actionActualizar($id){
         $directorio = Directorio::find()
         ->select("nombre")
-        ->where(["id" => $id_directorio])
+        ->where(["id" => $id])
         ->one();
         $uploads = UploadedFile::getInstancesByName("files");
-        // return $uploads;
         if (empty($uploads)){
           throw new ServerErrorHttpException("No hay archivos adjuntos");
         }else{
-          ArchivoPrivadoController::crearArchivo($uploads, $id_directorio, $directorio->nombre);
+          ArchivoPrivadoController::crearArchivo($uploads, $id, $directorio->nombre);
         }
       }
 
+      public function actionEliminar($id){
+        $directorio = Directorio::find()->where(["id" => $id])->one();
+        if($directorio){
+              $ids_ar = $directorio->archivoPrivados;
+              foreach($ids_ar as $doc){
+                 if($doc->delete()){
+                   unlink("../web".$doc->direccion);
+                 }
+              }
+              if($directorio->delete()){
+                FileHelper::removeDirectory("../web/uploads/".$directorio->nombre);
+                return [
+                  "status" => true,
+                  "msg" => "La directorio ha sido eliminado"
+                ];
+              }else{
+                throw new ServerErrorHttpException("Error al eliminar la directorio");
+              }
+        }
+      }
+    
+
+      public function actionFiltro($search = "all", $unidad = "all"){
+        $response = [];
+        $connection = \Yii::$app->getDb();
+        $consulta = "select d.*, u.nombre as nombre_unidad from unidad u, directorio d where d.id_unidad = u.id";
+        $filterSearch = "";
+        $filterUnidad = "";
+        if($search !== "all"){
+          $filterSearch = " and (d.nombre ILIKE '%". $search . "%' or u.nombre ILIKE '%". $search . "%' or u.descripcion ILIKE '%". $search . "%')";
+        }
+        if($unidad !== "all"){
+          $filterUnidad = " and u.id = ".$unidad;
+        }
+
+        $consulta = $consulta. $filterSearch . $filterUnidad;
+        $query = $connection->createCommand($consulta);
+        $data = $query->queryAll();
+
+        foreach($data as $d){
+          $archivos = ArchivoPrivado::find()->where(["id_directorio" => $d["id"]])->all(); 
+          $response [] = [
+            "id" => $d["id"],
+            "nombre" => $d["nombre"],
+            "fecha_creacion" => $d["fecha_creacion"],
+            "fecha_actualizacion" => $d["fecha_actualizacion"],
+            "descripcion" => $d["descripcion"],
+            "id_unidad" => $d["id_unidad"],
+            "nombre_unidad" => $d["nombre_unidad"],
+            "archivos" => $archivos
+          ];
+        }
+
+        return $response;
+      }
 }
