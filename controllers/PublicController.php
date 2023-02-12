@@ -109,7 +109,7 @@ class PublicController extends \yii\web\Controller
      public function actionFiltro($search = "all", $unidad = "all"){
       $searchUnidad = [];
       $searchWhere = [];
-
+      $response = [];
       if($search !== "all"){
         $searchWhere = [
           'or',
