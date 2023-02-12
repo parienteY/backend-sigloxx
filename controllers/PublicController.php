@@ -53,6 +53,7 @@ class PublicController extends \yii\web\Controller
             "id_unidad" => $a->id_unidad,
             "direccion" => $a->direccion,
             "nombre" => $a->nombre,
+            "type" => $a->type,
             "extension" => $a->extension,
             'fecha_creacion' => $a->fecha_creacion,
             "fecha_actualizacion" => $a->fecha_actualizacion,
@@ -135,6 +136,7 @@ class PublicController extends \yii\web\Controller
           "direccion" => $a->direccion,
           "nombre" => $a->nombre,
           "extension" => $a->extension,
+          "type" => $a->type,
           'fecha_creacion' => $a->fecha_creacion,
           "fecha_actualizacion" => $a->fecha_actualizacion,
           "nombre_unidad" => $unidad
