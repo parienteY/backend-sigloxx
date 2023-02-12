@@ -1,5 +1,4 @@
-php_value upload_max_filesize 1000 M
-php_value post_max_size 1200 M
+
 Options +FollowSymLinks
 
 IndexIgnore */*
