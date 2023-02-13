@@ -33,7 +33,7 @@ class PublicController extends \yii\web\Controller
       }
   
 
-     public function actionListarArchivosPublicos($id_unidad = "all", $limit = 10, $offset = 0){
+     public function actionListarArchivosPublicos($id_unidad = "all", $limit = 20, $offset = 0){
       $count = null;
       $response = [];
         if($id_unidad !== "all"){
@@ -117,7 +117,7 @@ class PublicController extends \yii\web\Controller
         return $unidades;
      }
 
-     public function actionFiltro($search = "all", $unidad = "all"){
+     public function actionFiltro($search = "all", $unidad = "all", $limit = 20, $offset = 0){
       $searchUnidad = [];
       $searchWhere = [];
       $response = [];
@@ -130,8 +130,9 @@ class PublicController extends \yii\web\Controller
       if($unidad !== "all"){
         $searchUnidad = ["id_unidad" => $unidad];
       }
-
-      $archivos = ArchivoPublico::find()->where($searchUnidad)->andFilterWhere($searchWhere)->all();
+      $consulta = ArchivoPublico::find()->where($searchUnidad)->andFilterWhere($searchWhere);
+      $count = $consulta->count();
+      $archivos = $consulta->limit($limit)->offset($offset)->all();
 
       foreach($archivos  as $a){
           
@@ -153,7 +154,10 @@ class PublicController extends \yii\web\Controller
           "nombre_unidad" => $unidad
         ];
       }
-      return $response;
+      return [
+        "total" => $count,
+        "data" => $response
+      ];
     }
 
 
