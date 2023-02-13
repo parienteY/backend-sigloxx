@@ -31,6 +31,7 @@ $config = [
           "archivo-privado/*",
           "tag/*",
           "user/*",
+          "logs/*",
           "unidad/*",
           "noticia/*",
           "tiene/*",

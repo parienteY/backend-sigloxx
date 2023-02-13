@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\ArchivoPrivado;
+use app\models\ArchivoPublico;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\BadRequestHttpException;
@@ -101,7 +102,13 @@ class ArchivoPrivadoController extends \yii\web\Controller
 
       public function actionObtenerArchivo($id){
         $archivo = ArchivoPrivado::find()->where(["id" => $id])->one();
-
-        Yii::$app->response->sendFile("../web".$archivo["direccion"], $archivo["nombre"], ['inline' => false])->send();
+        if($archivo){
+          Yii::$app->response->sendFile("../web".$archivo["direccion"], $archivo["nombre"], ['inline' => false])->send();
+        }else{
+          $archivoP = ArchivoPublico::find()->where(["id" => $id])->one();
+          if($archivoP){
+            Yii::$app->response->sendFile("../web".$archivoP["direccion"], $archivoP["nombre"], ['inline' => false])->send();
+          }
+        }
       }
 }

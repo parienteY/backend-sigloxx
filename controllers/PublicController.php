@@ -33,12 +33,14 @@ class PublicController extends \yii\web\Controller
       }
   
 
-     public function actionListarArchivosPublicos($id_unidad = "all"){
+     public function actionListarArchivosPublicos($id_unidad = "all", $limit = 10, $offset = 0){
+      $count = null;
       $response = [];
         if($id_unidad !== "all"){
             $archivos = ArchivoPublico::find()->where(["id_unidad" => $id_unidad])->one();
         }else{
-            $archivos = ArchivoPublico::find()->all();
+            $count = ArchivoPublico::find()->count();
+            $archivos = ArchivoPublico::find()->limit($limit)->offset($offset)->all();
         }
         foreach($archivos  as $a){
           
@@ -60,7 +62,16 @@ class PublicController extends \yii\web\Controller
             "nombre_unidad" => $unidad
           ];
         }
-        return $response;
+
+        if(!is_null($count)){
+          return [
+            "total" => $count,
+            "data" => $response
+          ];
+        }else{
+          return $response;
+        }
+        
      }
 
      public function actionListarNoticias($id_noticia = "all", $id_unidad = 'all'){
@@ -71,7 +82,7 @@ class PublicController extends \yii\web\Controller
           ->all();
         }else{
           if($id_unidad !== 'all'){
-            $response = Noticia::find()->where(["id_unidad" => $id_unidad])->all();
+            $response = Noticia::find()->limit(10)->where(["id_unidad" => $id_unidad])->all();
           }else{
             $response = Noticia::find()->all();
           }

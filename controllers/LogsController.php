@@ -1,6 +1,8 @@
 <?php
 
 namespace app\controllers;
+
+use app\models\Logs;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\BadRequestHttpException;
@@ -42,10 +44,14 @@ class LogsController extends \yii\web\Controller
         $behaviors['verbs'] = [
           'class' => VerbFilter::className(),
           'actions' => [
-           
+           "listar" => ["get"]
           ],
         ];
         return $behaviors;
+      }
+
+      public function actionListar(){
+        return Logs::find()->all();
       }
 
 }
