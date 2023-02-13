@@ -108,6 +108,8 @@ class ArchivoPrivadoController extends \yii\web\Controller
           $archivoP = ArchivoPublico::find()->where(["id" => $id])->one();
           if($archivoP){
             Yii::$app->response->sendFile("../web".$archivoP["direccion"], $archivoP["nombre"], ['inline' => false])->send();
+          }else{
+            throw new ServerErrorHttpException("No existe el archivo");
           }
         }
       }
