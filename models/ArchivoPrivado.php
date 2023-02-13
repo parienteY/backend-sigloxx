@@ -17,7 +17,6 @@ use Yii;
  * @property string|null $type
  *
  * @property Directorio $directorio
- * @property Tiene[] $tienes
  */
 class ArchivoPrivado extends \yii\db\ActiveRecord
 {
@@ -41,7 +40,6 @@ class ArchivoPrivado extends \yii\db\ActiveRecord
             [['nombre', 'direccion', 'extension', 'type'], 'string'],
             [['fecha_creacion', 'fecha_actualizacion'], 'safe'],
             [['id_directorio'], 'exist', 'skipOnError' => true, 'targetClass' => Directorio::class, 'targetAttribute' => ['id_directorio' => 'id']],
-            
         ];
     }
 
@@ -70,15 +68,5 @@ class ArchivoPrivado extends \yii\db\ActiveRecord
     public function getDirectorio()
     {
         return $this->hasOne(Directorio::class, ['id' => 'id_directorio']);
-    }
-
-    /**
-     * Gets query for [[Tienes]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTienes()
-    {
-        return $this->hasMany(Tiene::class, ['id_archivo' => 'id']);
     }
 }

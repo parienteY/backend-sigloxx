@@ -16,8 +16,7 @@ use Yii;
  * @property string $fecha_actualizacion
  * @property string|null $type
  *
- * @property Tiene[] $tienes
- * @property Directorio $unidad
+ * @property Unidad $unidad
  */
 class ArchivoPublico extends \yii\db\ActiveRecord
 {
@@ -40,7 +39,7 @@ class ArchivoPublico extends \yii\db\ActiveRecord
             [['direccion', 'nombre', 'extension', 'fecha_creacion', 'fecha_actualizacion'], 'required'],
             [['direccion', 'nombre', 'extension', 'type'], 'string'],
             [['fecha_creacion', 'fecha_actualizacion'], 'safe'],
-            [['id_unidad'], 'exist', 'skipOnError' => true, 'targetClass' => Directorio::class, 'targetAttribute' => ['id_unidad' => 'id']],
+            [['id_unidad'], 'exist', 'skipOnError' => true, 'targetClass' => Unidad::class, 'targetAttribute' => ['id_unidad' => 'id']],
         ];
     }
 
@@ -62,22 +61,12 @@ class ArchivoPublico extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Tienes]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTienes()
-    {
-        return $this->hasMany(Tiene::class, ['id_archivo' => 'id']);
-    }
-
-    /**
      * Gets query for [[Unidad]].
      *
      * @return \yii\db\ActiveQuery
      */
     public function getUnidad()
     {
-        return $this->hasOne(Directorio::class, ['id' => 'id_unidad']);
+        return $this->hasOne(Unidad::class, ['id' => 'id_unidad']);
     }
 }

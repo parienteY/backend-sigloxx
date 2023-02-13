@@ -83,7 +83,10 @@ class ArchivoPublicoController extends \yii\web\Controller
             ];
             $nuevoArchivo = new ArchivoPublico($params);
             $nuevoArchivo->save();
+            array_push($savedfiles, $params);
         }
+        UtilController::generatedLog($savedfiles, "archivo_publico", "CREAR");
+
         return [
           "status" => true,
           "msg" => "Archivos creados"

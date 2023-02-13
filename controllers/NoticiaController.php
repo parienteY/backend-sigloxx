@@ -80,6 +80,7 @@ class NoticiaController extends \yii\web\Controller
 
         $nuevaNoticia = new Noticia($body);
         if($nuevaNoticia->save()){
+          UtilController::generatedLog($nuevaNoticia, "noticia", "CREAR");
           return [
             "status" => true,
             "noticia" => $nuevaNoticia
@@ -98,6 +99,7 @@ class NoticiaController extends \yii\web\Controller
 
         if($noticia){
           if($noticia->load($params, '') && $noticia->save()){
+            UtilController::generatedLog($noticia, "noticia", "ACTUALIZAR");
             return [
               "status" => true,
               "noticia_actualizada" => $noticia
@@ -124,6 +126,7 @@ class NoticiaController extends \yii\web\Controller
                 }
               }
               if($noticia->delete()){
+                UtilController::generatedLog(["noticia" => $noticia, "archivos" => $noticia->archivos_adjuntos], "noticia", "ELIMINAR");
                 return [
                   "status" => true,
                   "msg" => "La noticia ha sido eliminada"
@@ -151,6 +154,7 @@ class NoticiaController extends \yii\web\Controller
               "archivos" => $ids
             ];
             if($noticia->save()){
+              UtilController::generatedLog(["noticia" => $noticia, "archivos" => $eliminado], "noticia", "ELIMINAR_ADJUNTOS");
               return [
                 "status" => true,
                 "msg" => "Archivo eliminado"
@@ -174,6 +178,7 @@ class NoticiaController extends \yii\web\Controller
               "archivos" => $merged
             ];
             if($noticia->save()){
+              UtilController::generatedLog(["noticia" => $noticia, "archivos" => $uploads], "noticia", "ACTUALIZAR_ADJUNTOS");
               return [
                 "status" => true,
                 "msg" => "Archivos anadidos"

@@ -174,6 +174,7 @@ class UserController extends \yii\web\Controller
         if (!$user) {
           $userCreated = $this->RegistroUsuario($params, $params['rol']);
           if ($userCreated) {
+            UtilController::generatedLog($userCreated, "usuario", "CREAR");
             $r = ["status" => true, "msg" => "Registro existoso",];
           } else {
             throw new ServerErrorHttpException("No se pudo registrar, intente de nuevo");
@@ -193,6 +194,7 @@ class UserController extends \yii\web\Controller
         if (!is_null($id) ) {
           if ($model = User::findOne(['id' => $id, 'removed' => null])) {
             if ($model->load($params, '') && $model->save()) {
+              UtilController::generatedLog(["user" => $user, "params" => $params], "usuario", "ACTUALIZAR");
               $r = ["status" => false, "msg" => "Se actualizo el usuario",];
             } else {
               throw new ServerErrorHttpException("Algo salio mal, vuelva a intentarlo");
@@ -218,6 +220,7 @@ class UserController extends \yii\web\Controller
         if ($model = User::findOne(['id' => $id, 'removed' => null])) {
           $roles2 = Yii::$app->authManager->getRolesByUser($model->id);
             if ($model->load($removed, '') && $model->save()) {
+              UtilController::generatedLog([$model], "usuario", "ELIMINAR");
               $r = ["status" => false, "msg" => "Se elimino el usuario",];
             } else {
               throw new ServerErrorHttpException("Hubo un error al tratar de eliminar el usuario");

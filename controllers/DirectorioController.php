@@ -117,6 +117,7 @@ class DirectorioController extends \yii\web\Controller
 
         if($newDirectory->save()){
           ArchivoPrivadoController::crearArchivo($uploads, $newDirectory["id"], $newDirectory["nombre"]);
+          UtilController::generatedLog(["directorio" => $newDirectory, "archivos" => $uploads], "directorio", "ELIMINAR");
           return [
             "msg" => "Creado exitosamente"
           ];
@@ -137,20 +138,24 @@ class DirectorioController extends \yii\web\Controller
           throw new ServerErrorHttpException("No hay archivos adjuntos");
         }else{
           ArchivoPrivadoController::crearArchivo($uploads, $id, $directorio->nombre);
+          UtilController::generatedLog(["directorio" => $directorio, "archivos" => $uploads], "directorio", "ACTUALIZAR");
         }
       }
 
       public function actionEliminar($id){
         $directorio = Directorio::find()->where(["id" => $id])->one();
+        $deletes = [];
         if($directorio){
               $ids_ar = $directorio->archivoPrivados;
               foreach($ids_ar as $doc){
                  if($doc->delete()){
+                  array_push($deletes, $doc);
                    unlink("../web".$doc->direccion);
                  }
               }
               if($directorio->delete()){
                 FileHelper::removeDirectory("../web/uploads/".$directorio->nombre);
+                UtilController::generatedLog(["directorio" => $directorio, "archivos" => $deletes], "directorio", "ELIMINAR");
                 return [
                   "status" => true,
                   "msg" => "La directorio ha sido eliminado"
