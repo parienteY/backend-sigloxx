@@ -132,17 +132,19 @@ class UserController extends \yii\web\Controller
           "email" => $body["email"],
           "nombres" => ucwords(strtolower($body["nombres"])),
           "apellidos" => ucwords(strtolower($body["apellidos"])),
-        //   "picture" => $body["picture"],
           "access_token" => $code,
           "created_at" => $time,
           "updated_at" => $time,
           "status" => 10,
+          "id_unidad" => $body["id_unidad"]
         ];
         if (isset($body['password'])) {
           $pwd = Yii::$app->getSecurity()->generatePasswordHash($body['password']);
           $data['password_hash'] = $pwd;
         }
-  
+        if(isset($body['picture'])){
+          $data["picture"] = $body["picture"];
+        }
         $usuarioNuevo = new User($data);
         $usuarioNuevo->tag_rol = $rol === "admin" ? "ADM" : "SCRE";
         $rolAsignado = false;

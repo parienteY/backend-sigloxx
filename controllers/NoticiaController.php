@@ -50,9 +50,9 @@ class NoticiaController extends \yii\web\Controller
           'class' => VerbFilter::className(),
           'actions' => [
             "crear" => ["post"],
-            "actualizar" => ["put"],
+            "actualizar" => ["post"],
             "eliminar" => ["delete"],
-            "eliminar-adjunto" => ["put"],
+            "eliminar-adjunto" => ["delete"],
             "agregar-adjuntos" => ["post"]
           ],
         ];
