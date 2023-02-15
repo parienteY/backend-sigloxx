@@ -64,12 +64,13 @@ class NoticiaController extends \yii\web\Controller
       public function actionCrear(){
         $params = Yii::$app->request->getBodyParams();
         $uploads = UploadedFile::getInstancesByName("files");
+        $user = Yii::$app->user->identity;
         $time = date("Y-m-d H:i:s");
         $body = [
           "titulo" => $params["titulo"],
           "subtitulo" => $params["subtitulo"],
           "foto" => $params["foto"],
-          "id_unidad" => $params["id_unidad"],
+          "id_unidad" => $user->id_unidad,
           "fecha_creacion" => $time,
           "fecha_actualizacion" => $time
           

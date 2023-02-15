@@ -183,16 +183,17 @@ class DirectorioController extends \yii\web\Controller
         $consulta = $consulta. $filterSearch . $filterUnidad;
         $query = $connection->createCommand($consulta);
         $data = $query->queryAll();
+        $user = Yii::$app->user->identity;
 
         foreach($data as $d){
-          $archivos = ArchivoPrivado::find()->where(["id_directorio" => $d["id"]])->all(); 
+          $archivos = ArchivoPrivado::find()->where(["id_directorio" => $d["id"]])->all();
           $response [] = [
             "id" => $d["id"],
             "nombre" => $d["nombre"],
             "fecha_creacion" => $d["fecha_creacion"],
             "fecha_actualizacion" => $d["fecha_actualizacion"],
             "descripcion" => $d["descripcion"],
-            "id_unidad" => $d["id_unidad"],
+            "id_unidad" => $user->id_unidad,
             "nombre_unidad" => $d["nombre_unidad"],
             "archivos" => $archivos
           ];
