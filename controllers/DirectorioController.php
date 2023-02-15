@@ -99,7 +99,7 @@ class DirectorioController extends \yii\web\Controller
       public function actionCrear(){
         $params = Yii::$app->request->getBodyParams();
         $time = date("Y-m-d H:i:s");
-
+        $user = Yii::$app->user->identity;
         $uploads = UploadedFile::getInstancesByName("files");
         // return $uploads;
         if (empty($uploads)){
@@ -110,7 +110,7 @@ class DirectorioController extends \yii\web\Controller
           "fecha_creacion" => $time,
           "fecha_actualizacion" => $time,
           "descripcion" => $params["descripcion"],
-          "id_unidad" => $params["id_unidad"]
+          "id_unidad" => $user->id_unidad
         ];
         
         $newDirectory = new Directorio($parametros);
