@@ -81,6 +81,10 @@ class UserController extends \yii\web\Controller
         $r = null;
         $user = Yii::$app->user->identity;
         $user = User::findOne($user->id);
+        $unidad = "";
+        if(isset($user->unidad->id)){
+          $unidad = $user->unidad->id;
+        }
         $roles = $this->getRoles($user->id);
         $permisos = $this->getPermisos($user->id);
         return [
@@ -89,7 +93,7 @@ class UserController extends \yii\web\Controller
           "email" => $user->email,
           "picture" => $user->picture,
           "roles" => $roles,
-          "id_unidad" => $user->unidad->id,
+          "id_unidad" => $unidad,
           "permisos" => $permisos,
         ];
       }
@@ -137,7 +141,7 @@ class UserController extends \yii\web\Controller
           "created_at" => $time,
           "updated_at" => $time,
           "status" => 10,
-          "id_unidad" => $body["id_unidad"]
+          "id_unidad" => $body["unidad"]
         ];
         if (isset($body['password'])) {
           $pwd = Yii::$app->getSecurity()->generatePasswordHash($body['password']);
@@ -147,11 +151,11 @@ class UserController extends \yii\web\Controller
           $data["picture"] = $body["picture"];
         }
         $usuarioNuevo = new User($data);
-        $usuarioNuevo->tag_rol = $rol === "admin" ? "ADM" : "SCRE";
+        $usuarioNuevo->tag_rol = $rol === "administrador" ? "ADM" : "SCRE";
         $rolAsignado = false;
         if ($usuarioNuevo->save()) {
           switch ($rol) {
-            case 'admin':
+            case 'administrador':
               $rolAsignado = $this->asignarRol($usuarioNuevo->id, "ADM");
               break;
             case 'secretaria':

@@ -138,6 +138,47 @@ class ArchivoPublicoController extends \yii\web\Controller
         ];
       }
 
+      public function actionListar($search = "all", $limit = 20, $offset = 0){
+        $user = Yii::$app->user->identity;
+        $searchUnidad = [];
+        $searchWhere = [];
+        $response = [];
+        if($search !== "all"){
+          $searchWhere = [
+            'or',
+            ['ilike', 'archivo_publico.nombre', $search],
+          ];
+        }
+          $searchUnidad = ["id_unidad" => $user->id_unidad];
+        $consulta = ArchivoPublico::find()->where($searchUnidad)->andFilterWhere($searchWhere);
+        $count = $consulta->count();
+        $archivos = $consulta->limit($limit)->offset($offset)->all();
+  
+        foreach($archivos  as $a){
+            
+          if(!is_null($a->unidad)){
+            $unidad = $a->unidad->nombre;
+          }else{
+            $unidad = null;
+          }
+  
+          $response []= [
+            "id" => $a->id,
+            "id_unidad" => $a->id_unidad,
+            "direccion" => $a->direccion,
+            "nombre" => $a->nombre,
+            "extension" => $a->extension,
+            "type" => $a->type,
+            'fecha_creacion' => $a->fecha_creacion,
+            "fecha_actualizacion" => $a->fecha_actualizacion,
+            "nombre_unidad" => $unidad
+          ];
+        }
+        return [
+          "total" => $count,
+          "data" => $response
+        ];
+      }
 
       public function actionEliminar($id_archivo){
         $archivo = ArchivoPublico::find()

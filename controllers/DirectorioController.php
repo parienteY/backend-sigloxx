@@ -60,11 +60,12 @@ class DirectorioController extends \yii\web\Controller
         return $behaviors;
       }
 
-      public function actionListar($id_unidad, $id_directorio = "all"){
+      public function actionListar( $id_directorio = "all"){
         $response = [];
+        $user = Yii::$app->user->identity;
         if($id_directorio !== "all"){
           $directorio = Directorio::find()
-          ->where(["id" => $id_directorio, "id_unidad" => $id_unidad])
+          ->where(["id" => $id_directorio, "id_unidad" => $user->id_unidad])
           ->one();
           $response = [
             "id" => $directorio->id,
@@ -77,7 +78,7 @@ class DirectorioController extends \yii\web\Controller
           ];
         }else{
           $directorios = Directorio::find()
-          ->where(["id_unidad" => $id_unidad])
+          ->where(["id_unidad" => $user->id_unidad])
           ->all();
 
           foreach($directorios as $a){

@@ -37,7 +37,7 @@ class PublicController extends \yii\web\Controller
       $count = null;
       $response = [];
         if($id_unidad !== "all"){
-            $archivos = ArchivoPublico::find()->where(["id_unidad" => $id_unidad])->one();
+            $archivos = ArchivoPublico::find()->where(["id_unidad" => $id_unidad])->all();
         }else{
             $count = ArchivoPublico::find()->count();
             $archivos = ArchivoPublico::find()->limit($limit)->offset($offset)->all();
