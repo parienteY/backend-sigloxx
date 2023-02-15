@@ -89,6 +89,7 @@ class UserController extends \yii\web\Controller
           "email" => $user->email,
           "picture" => $user->picture,
           "roles" => $roles,
+          "id_unidad" => $user->unidad->id,
           "permisos" => $permisos,
         ];
       }
