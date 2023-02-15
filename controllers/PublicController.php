@@ -8,7 +8,7 @@ use app\models\Unidad;
 use Yii;
 use yii\web\BadRequestHttpException;
 use yii\base\ExitException;
-
+use yii\web\ServerErrorHttpException;
 
 class PublicController extends \yii\web\Controller
 {
@@ -158,6 +158,16 @@ class PublicController extends \yii\web\Controller
         "total" => $count,
         "data" => $response
       ];
+    }
+
+    public function actionObtenerArchivo($id){
+        $archivoP = ArchivoPublico::find()->where(["id" => $id])->one();
+        if($archivoP){
+          Yii::$app->response->sendFile("../web".$archivoP["direccion"], $archivoP["nombre"], ['inline' => false])->send();
+        }else{
+          throw new ServerErrorHttpException("No existe el archivo");
+        }
+      
     }
 
 
