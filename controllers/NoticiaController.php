@@ -195,7 +195,8 @@ class NoticiaController extends \yii\web\Controller
         }
       }
 
-      public function actionFiltro($search = "all", $unidad = "all"){
+      public function actionFiltro($search = "all"){
+        $user = Yii::$app->user->identity;
         $searchUnidad = [];
         $searchWhere = [];
         $response = [];
@@ -207,8 +208,8 @@ class NoticiaController extends \yii\web\Controller
             ['ilike', 'noticia.subtitulo', $search],
           ];
         }
-        if($unidad !== "all"){
-          $searchUnidad = ["id_unidad" => $unidad];
+        if($user->id_unidad !== "all"){
+          $searchUnidad = ["id_unidad" => $user->id_unidad];
         }
 
         $response = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->all();

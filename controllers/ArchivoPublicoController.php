@@ -47,7 +47,7 @@ class ArchivoPublicoController extends \yii\web\Controller
         $behaviors['verbs'] = [
           'class' => VerbFilter::className(),
           'actions' => [
-            "eliminar" => ["post"],
+            "eliminar" => ["delete"],
             "crear" => ["post"],
           ],
         ];
