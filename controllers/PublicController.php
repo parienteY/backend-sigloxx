@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\ArchivoPublico;
 use app\models\Noticia;
 use app\models\Unidad;
+use app\models\User;
 use Yii;
 use yii\web\BadRequestHttpException;
 use yii\base\ExitException;
@@ -173,6 +174,10 @@ class PublicController extends \yii\web\Controller
           throw new ServerErrorHttpException("No existe el archivo");
         }
       
+    }
+
+    public function getJefe($id_unidad){
+      return User::find()->select("id, email, nombres, apellidos, id_unidad")->where(["ci" => $id_unidad])->one();
     }
 
 

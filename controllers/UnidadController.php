@@ -82,7 +82,5 @@ class UnidadController extends \yii\web\Controller
         }
       }
 
-      public function getJefe($id_unidad){
-        return User::find()->where(["ci" => $id_unidad])->one();
-      }
+      
 }
