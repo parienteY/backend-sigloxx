@@ -176,7 +176,7 @@ class PublicController extends \yii\web\Controller
       
     }
 
-    public function getJefe($id_unidad){
+    public function actionGetJefe($id_unidad){
       return User::find()->select("id, email, nombres, apellidos, id_unidad")->where(["ci" => $id_unidad])->one();
     }
 
