@@ -60,8 +60,9 @@ class DirectorioController extends \yii\web\Controller
         return $behaviors;
       }
 
-      public function actionListar( $id_directorio = "all"){
+      public function actionListar( $id_directorio = "all", $offset = 0, $limit = 10 ){
         $response = [];
+        $count = 0;
         $user = Yii::$app->user->identity;
         if($id_directorio !== "all"){
           $directorio = Directorio::find()
@@ -78,11 +79,20 @@ class DirectorioController extends \yii\web\Controller
           ];
         }else{
           if($user->tag_rol === "SUPER"){
+            $count = $directorios = Directorio::find()
+            ->count();
             $directorios = Directorio::find()
+            ->offset($offset)
+            ->limit($limit)
             ->all();
           }else{
+            $count = Directorio::find()
+            ->where(["id_unidad" => $user->id_unidad])
+            ->count();
             $directorios = Directorio::find()
             ->where(["id_unidad" => $user->id_unidad])
+            ->offset($offset)
+            ->limit($limit)
             ->all();
           }
 
@@ -98,7 +108,9 @@ class DirectorioController extends \yii\web\Controller
             ];
           }
         }
-        return $response;
+        return [
+          "total" => $count,
+          "data" => $response];
       }
 
 
