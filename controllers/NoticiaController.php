@@ -66,11 +66,18 @@ class NoticiaController extends \yii\web\Controller
         $uploads = UploadedFile::getInstancesByName("files");
         $user = Yii::$app->user->identity;
         $time = date("Y-m-d H:i:s");
+        $unidad=null;
+        
+        if($user->tag_rol === "SUPER"){
+          $unidad = $params['unidad'];
+        }else{
+          $unidad = $user->id_unidad;
+        }
         $body = [
           "titulo" => $params["titulo"],
           "subtitulo" => $params["subtitulo"],
           "foto" => $params["foto"],
-          "id_unidad" => $user->id_unidad,
+          "id_unidad" => $unidad,
           "fecha_creacion" => $time,
           "fecha_actualizacion" => $time
           
@@ -195,7 +202,7 @@ class NoticiaController extends \yii\web\Controller
         }
       }
 
-      public function actionFiltro($search = "all"){
+      public function actionFiltro($search = "all", $unidad = "all", $limit = 10, $offset = 0){
         $user = Yii::$app->user->identity;
         $searchUnidad = [];
         $searchWhere = [];
@@ -208,11 +215,16 @@ class NoticiaController extends \yii\web\Controller
             ['ilike', 'noticia.subtitulo', $search],
           ];
         }
-        if($user->id_unidad !== "all"){
+        if($unidad !== "all" && $user->tag_rol === "SUPER"){
+          $searchUnidad = ["id_unidad" => $unidad];
+        }
+
+        if($user->tag_rol !== "SUPER"){
           $searchUnidad = ["id_unidad" => $user->id_unidad];
         }
 
-        $response = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->all();
+        $response = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->offset($offset)->limit($limit)->all();
+        $count = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->count();
 
         foreach($response as $res){
           if (!is_null($res->archivos_adjuntos)) {
@@ -231,6 +243,10 @@ class NoticiaController extends \yii\web\Controller
               ];
           }
         }
-        return $respuesta;
+        return [
+          "total" => $count,
+          "data" => $respuesta
+        ];
+        
       }
 }

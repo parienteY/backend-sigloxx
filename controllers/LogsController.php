@@ -50,8 +50,14 @@ class LogsController extends \yii\web\Controller
         return $behaviors;
       }
 
-      public function actionListar(){
-        return Logs::find()->all();
+      public function actionListar($offset = 0, $limit = 10){
+        $data = [];
+        $count = Logs::find()->count();
+        $data = Logs::find()->offset($offset)->limit($limit)->all();
+        return [
+          "total" => $count,
+          "data" => $data
+        ];
       }
 
 }

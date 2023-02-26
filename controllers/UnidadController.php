@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Unidad;
+use app\models\User;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\BadRequestHttpException;
@@ -79,5 +80,9 @@ class UnidadController extends \yii\web\Controller
         }else{
           throw new ServerErrorHttpException("No se pudo actualizar la unidad");
         }
+      }
+
+      public function getJefe($id_unidad){
+        return User::find()->where(["ci" => $id_unidad])->one();
       }
 }

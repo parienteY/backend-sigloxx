@@ -77,9 +77,14 @@ class DirectorioController extends \yii\web\Controller
             "id_unidad" => $directorio->id_unidad
           ];
         }else{
-          $directorios = Directorio::find()
-          ->where(["id_unidad" => $user->id_unidad])
-          ->all();
+          if($user->tag_rol === "SUPER"){
+            $directorios = Directorio::find()
+            ->all();
+          }else{
+            $directorios = Directorio::find()
+            ->where(["id_unidad" => $user->id_unidad])
+            ->all();
+          }
 
           foreach($directorios as $a){
             $response []= [
@@ -98,6 +103,7 @@ class DirectorioController extends \yii\web\Controller
 
 
       public function actionCrear(){
+        $unidad = null;
         $params = Yii::$app->request->getBodyParams();
         $time = date("Y-m-d H:i:s");
         $user = Yii::$app->user->identity;
@@ -106,12 +112,17 @@ class DirectorioController extends \yii\web\Controller
         if (empty($uploads)){
           throw new ServerErrorHttpException("No hay archivos adjuntos");
         }
+        if($user->tag_rol === "SUPER"){
+          $unidad = $params["unidad"];
+        }else{
+          $unidad = $user->id_unidad;
+        }
         $parametros = [
           "nombre" => $params["nombre"],
           "fecha_creacion" => $time,
           "fecha_actualizacion" => $time,
           "descripcion" => $params["descripcion"],
-          "id_unidad" => $user->id_unidad
+          "id_unidad" => $unidad
         ];
         
         $newDirectory = new Directorio($parametros);

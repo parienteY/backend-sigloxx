@@ -74,17 +74,20 @@ class PublicController extends \yii\web\Controller
         
      }
 
-     public function actionListarNoticias($id_noticia = "all", $id_unidad = 'all'){
+     public function actionListarNoticias($id_noticia = "all", $id_unidad = 'all', $offset = 0, $limit = 10){
        $respuesta = [];
+       $count = 0;
         if($id_noticia !== "all"){
           $response = Noticia::find()
           ->where(["id"=>$id_noticia])
           ->all();
         }else{
           if($id_unidad !== 'all'){
-            $response = Noticia::find()->limit(10)->where(["id_unidad" => $id_unidad])->all();
+            $count = Noticia::find()->limit(10)->where(["id_unidad" => $id_unidad])->count();
+            $response = Noticia::find()->limit(10)->where(["id_unidad" => $id_unidad])->offset($offset)->limit($limit)->all();
           }else{
-            $response = Noticia::find()->all();
+            $count = Noticia::find()->count();
+            $response = Noticia::find()->offset($offset)->limit($limit)->all();
           }
         }
         foreach($response as $res){
@@ -104,7 +107,9 @@ class PublicController extends \yii\web\Controller
               ];
           }
         }
-        return $respuesta;
+        return [
+          "total" => $count,
+          "data" => $respuesta];
       }
      public function actionInfoUnidades($id_unidad = "all"){
         if($id_unidad !== "all"){

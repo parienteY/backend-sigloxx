@@ -58,9 +58,16 @@ class ArchivoPublicoController extends \yii\web\Controller
       public static function actionCrear(){
         $savedfiles = [];
         $uploads = UploadedFile::getInstancesByName("files");
+        $params = Yii::$app->request->getBodyParams();
         $time = date("Y-m-d H:i:s");
         $path = '../web/uploads/public/';
+        $unidad = null;
         $user = Yii::$app->user->identity;
+        if($user->tag_rol === "SUPER"){
+          $unidad = $params["id_unidad"];
+        }else{
+          $unidad = $user->id_unidad;
+        }
         if(!file_exists($path)){
           mkdir($path, 0777, true);
         }
@@ -75,7 +82,7 @@ class ArchivoPublicoController extends \yii\web\Controller
             $file->saveAs($path . $file->baseName . '.' . $file->extension);
             $params = [
               "direccion" => '/uploads/public/'. $basename . '.' . $file->extension,
-              "id_unidad" => $user->id_unidad,
+              "id_unidad" => $unidad,
               "nombre" => $file->baseName,
               "extension" => $file->extension,
               "type" => $file->type,
