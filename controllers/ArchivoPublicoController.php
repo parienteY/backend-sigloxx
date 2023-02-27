@@ -145,7 +145,7 @@ class ArchivoPublicoController extends \yii\web\Controller
         ];
       }
 
-      public function actionListar($search = "all", $limit = 20, $offset = 0){
+      public function actionListar($search = "all", $unidad = 'all', $limit = 20, $offset = 0){
         $user = Yii::$app->user->identity;
         $searchUnidad = [];
         $searchWhere = [];
@@ -156,7 +156,11 @@ class ArchivoPublicoController extends \yii\web\Controller
             ['ilike', 'archivo_publico.nombre', $search],
           ];
         }
+        if($user->tag_rol === "SUPER" && $unidad !== 'all'){
+          $searchUnidad = ["id_unidad" => $unidad];
+        }else if($user->tag_rol !== "SUPER"){
           $searchUnidad = ["id_unidad" => $user->id_unidad];
+        }
         $consulta = ArchivoPublico::find()->where($searchUnidad)->andFilterWhere($searchWhere);
         $count = $consulta->count();
         $archivos = $consulta->limit($limit)->offset($offset)->all();

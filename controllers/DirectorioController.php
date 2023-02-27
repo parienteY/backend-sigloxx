@@ -60,13 +60,19 @@ class DirectorioController extends \yii\web\Controller
         return $behaviors;
       }
 
-      public function actionListar( $id_directorio = "all", $offset = 0, $limit = 10 ){
+      public function actionListar( $id_directorio = "all", $offset = 0, $limit = 10, $unidad = 'all' ){
         $response = [];
         $count = 0;
         $user = Yii::$app->user->identity;
+        $un = null;
+        if($user->tag_rol === "SUPER" && $unidad !== 'all'){
+          $un = $unidad;
+        }else{
+          $un = $user->id_unidad;
+        }
         if($id_directorio !== "all"){
           $directorio = Directorio::find()
-          ->where(["id" => $id_directorio, "id_unidad" => $user->id_unidad])
+          ->where(["id" => $id_directorio, "id_unidad" => $un])
           ->one();
           $response = [
             "id" => $directorio->id,
@@ -79,12 +85,23 @@ class DirectorioController extends \yii\web\Controller
           ];
         }else{
           if($user->tag_rol === "SUPER"){
-            $count = $directorios = Directorio::find()
+            if($unidad !== 'all'){
+              $count = $directorios = Directorio::find()
+              ->where(["id_unidad" => $unidad])
+              ->count();
+              $directorios = Directorio::find()
+              ->where(["id_unidad" => $unidad])
+              ->offset($offset)
+              ->limit($limit)
+              ->all();
+            }else{
+              $count = $directorios = Directorio::find()
             ->count();
             $directorios = Directorio::find()
             ->offset($offset)
             ->limit($limit)
             ->all();
+            }
           }else{
             $count = Directorio::find()
             ->where(["id_unidad" => $user->id_unidad])
@@ -101,7 +118,7 @@ class DirectorioController extends \yii\web\Controller
               "id" => $a->id,
               "nombre" => $a->nombre,
               "fecha_creacion" => $a->fecha_creacion,
-              "descripciom" => $a->descripcion,
+              "descripcion" => $a->descripcion,
               "archivos" => $a->archivoPrivados,
               "id_unidad" => $a->id_unidad,
               "nombre_unidad" => $a->unidad->nombre
@@ -191,7 +208,7 @@ class DirectorioController extends \yii\web\Controller
       }
     
 
-      public function actionFiltro($search = "all", $unidad = "all"){
+      public function actionFiltro($search = "all", $unidad = "all", $offset = 0, $limit = 10){
         $response = [];
         $connection = \Yii::$app->getDb();
         $consulta = "select d.*, u.nombre as nombre_unidad from unidad u, directorio d where d.id_unidad = u.id";
@@ -200,15 +217,24 @@ class DirectorioController extends \yii\web\Controller
         if($search !== "all"){
           $filterSearch = " and (d.nombre ILIKE '%". $search . "%' or u.nombre ILIKE '%". $search . "%' or u.descripcion ILIKE '%". $search . "%')";
         }
-        if($unidad !== "all"){
-          $filterUnidad = " and u.id = ".$unidad;
+        $user = Yii::$app->user->identity;
+        $un = null;
+
+        if($user->tag_rol === "SUPER" && $unidad !== 'all'){
+          $un = $unidad;
+        }else if($user->tag_rol !== "SUPER"){
+          $un = $user->id_unidad;
         }
 
-        $consulta = $consulta. $filterSearch . $filterUnidad;
+        if(!is_null($un)){
+          $filterUnidad = " and u.id = ".$un;
+        }
+        
+
+        $consulta = $consulta. $filterSearch . $filterUnidad . " limit ".$limit . " offset ".$offset ;
         $query = $connection->createCommand($consulta);
         $data = $query->queryAll();
-        $user = Yii::$app->user->identity;
-
+        $total = count($data);
         foreach($data as $d){
           $archivos = ArchivoPrivado::find()->where(["id_directorio" => $d["id"]])->all();
           $response [] = [
@@ -223,6 +249,9 @@ class DirectorioController extends \yii\web\Controller
           ];
         }
 
-        return $response;
+        return [
+          "total" => $total,
+          "data" => $response
+        ];
       }
 }
