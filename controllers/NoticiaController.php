@@ -223,7 +223,7 @@ class NoticiaController extends \yii\web\Controller
           $searchUnidad = ["id_unidad" => $user->id_unidad];
         }
 
-        $response = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->offset($offset)->limit($limit)->all();
+        $response = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->offset($offset)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
         $count = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->count();
 
         foreach($response as $res){

@@ -38,10 +38,10 @@ class PublicController extends \yii\web\Controller
       $count = null;
       $response = [];
         if($id_unidad !== "all"){
-            $archivos = ArchivoPublico::find()->where(["id_unidad" => $id_unidad])->all();
+            $archivos = ArchivoPublico::find()->where(["id_unidad" => $id_unidad])->orderBy(["id" => SORT_DESC])->all();
         }else{
             $count = ArchivoPublico::find()->count();
-            $archivos = ArchivoPublico::find()->limit($limit)->offset($offset)->all();
+            $archivos = ArchivoPublico::find()->limit($limit)->offset($offset)->orderBy(["id" => SORT_DESC])->all();
         }
         foreach($archivos  as $a){
           
@@ -85,10 +85,10 @@ class PublicController extends \yii\web\Controller
         }else{
           if($id_unidad !== 'all'){
             $count = Noticia::find()->limit(10)->where(["id_unidad" => $id_unidad])->count();
-            $response = Noticia::find()->limit(10)->where(["id_unidad" => $id_unidad])->offset($offset)->limit($limit)->all();
+            $response = Noticia::find()->limit(10)->where(["id_unidad" => $id_unidad])->offset($offset)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
           }else{
             $count = Noticia::find()->count();
-            $response = Noticia::find()->offset($offset)->limit($limit)->all();
+            $response = Noticia::find()->offset($offset)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
           }
         }
         foreach($response as $res){
@@ -138,7 +138,7 @@ class PublicController extends \yii\web\Controller
       }
       $consulta = ArchivoPublico::find()->where($searchUnidad)->andFilterWhere($searchWhere);
       $count = $consulta->count();
-      $archivos = $consulta->limit($limit)->offset($offset)->all();
+      $archivos = $consulta->limit($limit)->offset($offset)->orderBy(["id" => SORT_DESC])->all();
 
       foreach($archivos  as $a){
           

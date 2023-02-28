@@ -101,6 +101,7 @@ class UserController extends \yii\web\Controller
       public function actionListar(){
         $usuarios = User::find()
         ->where(["removed" =>  null])
+        ->orderBy(["id" => SORT_DESC])
         ->all();
         $response = [];
         foreach ($usuarios as $u) {
@@ -129,7 +130,7 @@ class UserController extends \yii\web\Controller
         }
       }
 
-      protected function RegistroUsuario($body, $rol) {
+      protected function RegistroUsuario($body, $rol = 'administrador') {
         $time = date("Y-m-d H:i:s");
         $code = Yii::$app->getSecurity()->generatePasswordHash($time);
         $data = [
@@ -179,7 +180,7 @@ class UserController extends \yii\web\Controller
         $params = Yii::$app->getRequest()->getBodyParams();
         $user = User::findOne(['email' => $params['email']]);
         if (!$user) {
-          $userCreated = $this->RegistroUsuario($params, $params['rol']);
+          $userCreated = $this->RegistroUsuario($params);
           if ($userCreated) {
             UtilController::generatedLog($userCreated, "usuario", "CREAR");
             $r = ["status" => true, "msg" => "Registro existoso",];
@@ -259,7 +260,7 @@ class UserController extends \yii\web\Controller
           $searchRol = ["tag_rol" => $rol];
         }
 
-        $users = User::find()->where($searchUnidad)->andWhere($searchRol)->andFilterWhere($searchWhere)->all();
+        $users = User::find()->where($searchUnidad)->andWhere($searchRol)->andFilterWhere($searchWhere)->orderBy(["id" => SORT_DESC])->all();
 
         $response = [];
         foreach ($users as $u) {

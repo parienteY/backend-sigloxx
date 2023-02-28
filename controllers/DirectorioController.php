@@ -73,6 +73,7 @@ class DirectorioController extends \yii\web\Controller
         if($id_directorio !== "all"){
           $directorio = Directorio::find()
           ->where(["id" => $id_directorio, "id_unidad" => $un])
+          ->orderBy(["id" => SORT_DESC])
           ->one();
           $response = [
             "id" => $directorio->id,
@@ -87,10 +88,12 @@ class DirectorioController extends \yii\web\Controller
           if($user->tag_rol === "SUPER"){
             if($unidad !== 'all'){
               $count = $directorios = Directorio::find()
+              ->orderBy(["id" => SORT_DESC])
               ->where(["id_unidad" => $unidad])
               ->count();
               $directorios = Directorio::find()
               ->where(["id_unidad" => $unidad])
+              ->orderBy(["id" => SORT_DESC])
               ->offset($offset)
               ->limit($limit)
               ->all();
@@ -98,6 +101,7 @@ class DirectorioController extends \yii\web\Controller
               $count = $directorios = Directorio::find()
             ->count();
             $directorios = Directorio::find()
+            ->orderBy(["id" => SORT_DESC])
             ->offset($offset)
             ->limit($limit)
             ->all();
@@ -105,9 +109,11 @@ class DirectorioController extends \yii\web\Controller
           }else{
             $count = Directorio::find()
             ->where(["id_unidad" => $user->id_unidad])
+            ->orderBy(["id" => SORT_DESC])
             ->count();
             $directorios = Directorio::find()
             ->where(["id_unidad" => $user->id_unidad])
+            ->orderBy(["id" => SORT_DESC])
             ->offset($offset)
             ->limit($limit)
             ->all();
@@ -231,7 +237,7 @@ class DirectorioController extends \yii\web\Controller
         }
         
 
-        $consulta = $consulta. $filterSearch . $filterUnidad . " limit ".$limit . " offset ".$offset ;
+        $consulta = $consulta. $filterSearch . $filterUnidad . " order by id DESC limit ".$limit . " offset ".$offset ;
         $query = $connection->createCommand($consulta);
         $data = $query->queryAll();
         $total = count($data);

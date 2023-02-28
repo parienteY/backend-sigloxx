@@ -53,7 +53,7 @@ class LogsController extends \yii\web\Controller
       public function actionListar($offset = 0, $limit = 10){
         $data = [];
         $count = Logs::find()->count();
-        $data = Logs::find()->offset($offset)->limit($limit)->all();
+        $data = Logs::find()->offset($offset)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
         return [
           "total" => $count,
           "data" => $data

@@ -163,7 +163,7 @@ class ArchivoPublicoController extends \yii\web\Controller
         }
         $consulta = ArchivoPublico::find()->where($searchUnidad)->andFilterWhere($searchWhere);
         $count = $consulta->count();
-        $archivos = $consulta->limit($limit)->offset($offset)->all();
+        $archivos = $consulta->limit($limit)->offset($offset)->orderBy(["id" => SORT_DESC])->all();
   
         foreach($archivos  as $a){
             
