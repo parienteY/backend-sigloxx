@@ -15,7 +15,9 @@ use Yii;
  * @property string $fecha_creacion
  * @property string $fecha_actualizacion
  * @property string|null $type
+ * @property bool|null $visible
  *
+ * @property Tiene[] $tienes
  * @property Unidad $unidad
  */
 class ArchivoPublico extends \yii\db\ActiveRecord
@@ -39,6 +41,7 @@ class ArchivoPublico extends \yii\db\ActiveRecord
             [['direccion', 'nombre', 'extension', 'fecha_creacion', 'fecha_actualizacion'], 'required'],
             [['direccion', 'nombre', 'extension', 'type'], 'string'],
             [['fecha_creacion', 'fecha_actualizacion'], 'safe'],
+            [['visible'], 'boolean'],
             [['id_unidad'], 'exist', 'skipOnError' => true, 'targetClass' => Unidad::class, 'targetAttribute' => ['id_unidad' => 'id']],
         ];
     }
@@ -57,7 +60,18 @@ class ArchivoPublico extends \yii\db\ActiveRecord
             'fecha_creacion' => 'Fecha Creacion',
             'fecha_actualizacion' => 'Fecha Actualizacion',
             'type' => 'Type',
+            'visible' => 'Visible',
         ];
+    }
+
+    /**
+     * Gets query for [[Tienes]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTienes()
+    {
+        return $this->hasMany(Tiene::class, ['id_archivo' => 'id']);
     }
 
     /**

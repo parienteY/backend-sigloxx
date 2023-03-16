@@ -79,8 +79,8 @@ class NoticiaController extends \yii\web\Controller
           "foto" => $params["foto"],
           "id_unidad" => $unidad,
           "fecha_creacion" => $time,
-          "fecha_actualizacion" => $time
-          
+          "fecha_actualizacion" => $time,
+          "visible" => true
         ];
         if(!is_null($uploads)){
           $body["archivos_adjuntos"] = ArchivoPublicoController::crearAdjunto($uploads);
@@ -248,5 +248,20 @@ class NoticiaController extends \yii\web\Controller
           "data" => $respuesta
         ];
         
+      }
+
+      public function actionCambiarEstado($id){
+
+        $noticia = Noticia::find()
+          ->where(["id" => $id])
+          ->one();
+
+        if($noticia->load(["visible" => !$noticia->visible], '') && $noticia->save()){
+          return [
+            "status" => true,
+          ];
+        }else{
+          throw new ServerErrorHttpException("No se pudo actualizar el noticia");
+        }
       }
 }

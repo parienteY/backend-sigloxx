@@ -72,7 +72,7 @@ class UnidadController extends \yii\web\Controller
           ->where(["id" => $id_unidad])
           ->one();
 
-        if($unidad->update(true, $params)){
+        if($unidad->load($params, '') && $unidad->save()){
           return [
             "status" => true,
             "unidad_actualizada" => $unidad
@@ -81,6 +81,5 @@ class UnidadController extends \yii\web\Controller
           throw new ServerErrorHttpException("No se pudo actualizar la unidad");
         }
       }
-
       
 }

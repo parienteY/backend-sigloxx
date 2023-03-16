@@ -87,7 +87,8 @@ class ArchivoPublicoController extends \yii\web\Controller
               "extension" => $file->extension,
               "type" => $file->type,
               "fecha_creacion" => $time,
-              "fecha_actualizacion" => $time
+              "fecha_actualizacion" => $time,
+              "visible" => true
             ];
             $nuevoArchivo = new ArchivoPublico($params);
             $nuevoArchivo->save();
@@ -133,7 +134,8 @@ class ArchivoPublicoController extends \yii\web\Controller
               "extension" => $file->extension,
               "type" => $file->type,
               "fecha_creacion" => $time,
-              "fecha_actualizacion" => $time
+              "fecha_actualizacion" => $time,
+              "visible" => true
             ];
             $nuevoArchivo = new ArchivoPublico($params);
             if($nuevoArchivo->save()){
@@ -211,4 +213,64 @@ class ArchivoPublicoController extends \yii\web\Controller
         }
       }
 
+      public function actionListarOcultos($search = "all", $unidad = 'all', $limit = 20, $offset = 0){
+        $user = Yii::$app->user->identity;
+        $searchUnidad = [];
+        $searchWhere = [];
+        $response = [];
+        if($search !== "all"){
+          $searchWhere = [
+            'or',
+            ['ilike', 'archivo_publico.nombre', $search],
+          ];
+        }
+        if($user->tag_rol === "SUPER" && $unidad !== 'all'){
+          $searchUnidad = ["id_unidad" => $unidad, "visible" => true];
+        }else if($user->tag_rol !== "SUPER"){
+          $searchUnidad = ["id_unidad" => $user->id_unidad, "visible" => true];
+        }
+        $consulta = ArchivoPublico::find()->where($searchUnidad)->andFilterWhere($searchWhere);
+        $count = $consulta->count();
+        $archivos = $consulta->limit($limit)->offset($offset)->orderBy(["id" => SORT_DESC])->all();
+  
+        foreach($archivos  as $a){
+            
+          if(!is_null($a->unidad)){
+            $unidad = $a->unidad->nombre;
+          }else{
+            $unidad = null;
+          }
+  
+          $response []= [
+            "id" => $a->id,
+            "id_unidad" => $a->id_unidad,
+            "direccion" => $a->direccion,
+            "nombre" => $a->nombre,
+            "extension" => $a->extension,
+            "type" => $a->type,
+            'fecha_creacion' => $a->fecha_creacion,
+            "fecha_actualizacion" => $a->fecha_actualizacion,
+            "nombre_unidad" => $unidad
+          ];
+        }
+        return [
+          "total" => $count,
+          "data" => $response
+        ];
+      }
+
+      public function actionCambiarEstado($id){
+
+        $archivo = ArchivoPublico::find()
+          ->where(["id" => $id])
+          ->one();
+
+        if($archivo->load(["visible" => !$archivo->visible], '') && $archivo->save()){
+          return [
+            "status" => true,
+          ];
+        }else{
+          throw new ServerErrorHttpException("No se pudo actualizar el archivo");
+        }
+      }
 }

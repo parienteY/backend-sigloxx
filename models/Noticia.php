@@ -15,6 +15,7 @@ use Yii;
  * @property string|null $fecha_creacion
  * @property string|null $fecha_actualizacion
  * @property int $id
+ * @property bool|null $visible
  *
  * @property Unidad $unidad
  */
@@ -39,6 +40,7 @@ class Noticia extends \yii\db\ActiveRecord
             [['archivos_adjuntos', 'fecha_creacion', 'fecha_actualizacion'], 'safe'],
             [['id_unidad'], 'default', 'value' => null],
             [['id_unidad'], 'integer'],
+            [['visible'], 'boolean'],
             [['id_unidad'], 'exist', 'skipOnError' => true, 'targetClass' => Unidad::class, 'targetAttribute' => ['id_unidad' => 'id']],
         ];
     }
@@ -57,6 +59,7 @@ class Noticia extends \yii\db\ActiveRecord
             'fecha_creacion' => 'Fecha Creacion',
             'fecha_actualizacion' => 'Fecha Actualizacion',
             'id' => 'ID',
+            'visible' => 'Visible',
         ];
     }
 
