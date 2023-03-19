@@ -264,4 +264,52 @@ class NoticiaController extends \yii\web\Controller
           throw new ServerErrorHttpException("No se pudo actualizar el noticia");
         }
       }
+
+      public function actionListarOcultos($search = "all", $unidad = "all", $limit = 10, $offset = 0){
+        $user = Yii::$app->user->identity;
+        $searchUnidad = [];
+        $searchWhere = [];
+        $response = [];
+        $respuesta = [];
+        if($search !== "all"){
+          $searchWhere = [
+            'or',
+            ['ilike', 'noticia.titulo', $search],
+            ['ilike', 'noticia.subtitulo', $search],
+          ];
+        }
+        if($unidad !== "all" && $user->tag_rol === "SUPER"){
+          $searchUnidad = ["id_unidad" => $unidad, "visible" => true];
+        }
+
+        if($user->tag_rol !== "SUPER"){
+          $searchUnidad = ["id_unidad" => $user->id_unidad, "visible" => true];
+        }
+
+        $response = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->offset($offset)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
+        $count = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->count();
+
+        foreach($response as $res){
+          if (!is_null($res->archivos_adjuntos)) {
+            $ids_ar = $res->archivos_adjuntos["archivos"];
+            $archivos = ArchivoPublico::find()
+              ->where(["id" => $ids_ar])
+              ->all();
+              $respuesta [] = [
+                "id" => $res->id,
+                "titulo" => $res->titulo,
+                "subtitulo" => $res->subtitulo,
+                "foto" => $res->foto,
+                "archivos_adjuntos" => $archivos,
+                "id_unidad" => $res->unidad->nombre,
+                "fecha_actualizacion" => $res->fecha_actualizacion
+              ];
+          }
+        }
+        return [
+          "total" => $count,
+          "data" => $respuesta
+        ];
+        
+      }
 }

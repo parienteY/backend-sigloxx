@@ -65,11 +65,12 @@ class UnidadController extends \yii\web\Controller
         return $unidades;
       }
 
-      public function actionActualizar($id_unidad){
+      public function actionActualizar(){
         $params = Yii::$app->request->getBodyParams();
+        $user = Yii::$app->user->identity;
 
         $unidad = Unidad::find()
-          ->where(["id" => $id_unidad])
+          ->where(["id" => $user->id])
           ->one();
 
         if($unidad->load($params, '') && $unidad->save()){
