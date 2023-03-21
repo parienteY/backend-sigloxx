@@ -149,7 +149,7 @@ class ArchivoPublicoController extends \yii\web\Controller
 
       public function actionListar($search = "all", $unidad = 'all', $limit = 20, $offset = 0){
         $user = Yii::$app->user->identity;
-        $searchUnidad = [];
+        $searchUnidad = ["visible" =>  true];
         $searchWhere = [];
         $response = [];
         if($search !== "all"){
@@ -159,14 +159,14 @@ class ArchivoPublicoController extends \yii\web\Controller
           ];
         }
         if($user->tag_rol === "SUPER" && $unidad !== 'all'){
-          $searchUnidad = ["id_unidad" => $unidad];
+          $searchUnidad = ["id_unidad" => $unidad, "visible" =>  true];
         }else if($user->tag_rol !== "SUPER"){
-          $searchUnidad = ["id_unidad" => $user->id_unidad];
+          $searchUnidad = ["id_unidad" => $user->id_unidad, "visible" =>  true];
         }
         $consulta = ArchivoPublico::find()->where($searchUnidad)->andFilterWhere($searchWhere);
         $count = $consulta->count();
-        $archivos = $consulta->limit($limit)->offset($offset)->orderBy(["id" => SORT_DESC])->all();
-  
+        $archivos = $consulta->offset($offset * $limit)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
+
         foreach($archivos  as $a){
             
           if(!is_null($a->unidad)){
@@ -184,7 +184,8 @@ class ArchivoPublicoController extends \yii\web\Controller
             "type" => $a->type,
             'fecha_creacion' => $a->fecha_creacion,
             "fecha_actualizacion" => $a->fecha_actualizacion,
-            "nombre_unidad" => $unidad
+            "nombre_unidad" => $unidad,
+            "visible" => $a->visible
           ];
         }
         return [
@@ -215,7 +216,7 @@ class ArchivoPublicoController extends \yii\web\Controller
 
       public function actionListarOcultos($search = "all", $unidad = 'all', $limit = 20, $offset = 0){
         $user = Yii::$app->user->identity;
-        $searchUnidad = [];
+        $searchUnidad = ["visible" => false];
         $searchWhere = [];
         $response = [];
         if($search !== "all"){
@@ -225,13 +226,13 @@ class ArchivoPublicoController extends \yii\web\Controller
           ];
         }
         if($user->tag_rol === "SUPER" && $unidad !== 'all'){
-          $searchUnidad = ["id_unidad" => $unidad, "visible" => true];
+          $searchUnidad = ["id_unidad" => $unidad, "visible" => false];
         }else if($user->tag_rol !== "SUPER"){
-          $searchUnidad = ["id_unidad" => $user->id_unidad, "visible" => true];
+          $searchUnidad = ["id_unidad" => $user->id_unidad, "visible" => false];
         }
         $consulta = ArchivoPublico::find()->where($searchUnidad)->andFilterWhere($searchWhere);
         $count = $consulta->count();
-        $archivos = $consulta->limit($limit)->offset($offset)->orderBy(["id" => SORT_DESC])->all();
+        $archivos = $consulta->limit($limit)->offset($offset * $limit)->orderBy(["id" => SORT_DESC])->all();
   
         foreach($archivos  as $a){
             
@@ -250,7 +251,8 @@ class ArchivoPublicoController extends \yii\web\Controller
             "type" => $a->type,
             'fecha_creacion' => $a->fecha_creacion,
             "fecha_actualizacion" => $a->fecha_actualizacion,
-            "nombre_unidad" => $unidad
+            "nombre_unidad" => $unidad,
+            "visible" => $a->visible
           ];
         }
         return [

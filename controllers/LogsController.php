@@ -50,10 +50,10 @@ class LogsController extends \yii\web\Controller
         return $behaviors;
       }
 
-      public function actionListar($offset = 0, $limit = 10){
+      public function actionListar($offset = 0, $limit = 20){
         $data = [];
         $count = Logs::find()->count();
-        $data = Logs::find()->offset($offset)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
+        $data = Logs::find()->offset($offset * $limit)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
         return [
           "total" => $count,
           "data" => $data

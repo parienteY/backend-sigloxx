@@ -70,10 +70,11 @@ class UnidadController extends \yii\web\Controller
         $user = Yii::$app->user->identity;
 
         $unidad = Unidad::find()
-          ->where(["id" => $user->id])
+          ->where(["id" => $user->id_unidad])
           ->one();
 
         if($unidad->load($params, '') && $unidad->save()){
+          UtilController::generatedLog($unidad, "unidad", "ACTUALIZAR");
           return [
             "status" => true,
             "unidad_actualizada" => $unidad

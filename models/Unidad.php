@@ -13,10 +13,12 @@ use Yii;
  * @property string|null $direccion
  * @property string|null $telefonos
  * @property string|null $coordenadas
+ * @property string|null $cover
  *
  * @property ArchivoPublico[] $archivoPublicos
  * @property Directorio[] $directorios
  * @property Noticia[] $noticias
+ * @property Tiene[] $tienes
  * @property User[] $users
  */
 class Unidad extends \yii\db\ActiveRecord
@@ -36,8 +38,8 @@ class Unidad extends \yii\db\ActiveRecord
     {
         return [
             [['nombre'], 'required'],
-            [['nombre', 'descripcion', 'direccion'], 'string'],
-            [['telefonos', 'coordenadas'], 'safe'],
+            [['nombre', 'descripcion', 'direccion', 'telefonos', 'cover'], 'string'],
+            [['coordenadas'], 'safe'],
         ];
     }
 
@@ -53,6 +55,7 @@ class Unidad extends \yii\db\ActiveRecord
             'direccion' => 'Direccion',
             'telefonos' => 'Telefonos',
             'coordenadas' => 'Coordenadas',
+            'cover' => 'Cover',
         ];
     }
 
@@ -84,6 +87,16 @@ class Unidad extends \yii\db\ActiveRecord
     public function getNoticias()
     {
         return $this->hasMany(Noticia::class, ['id_unidad' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Tienes]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTienes()
+    {
+        return $this->hasMany(Tiene::class, ['id_unidad' => 'id']);
     }
 
     /**

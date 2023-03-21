@@ -204,7 +204,7 @@ class NoticiaController extends \yii\web\Controller
 
       public function actionFiltro($search = "all", $unidad = "all", $limit = 10, $offset = 0){
         $user = Yii::$app->user->identity;
-        $searchUnidad = [];
+        $searchUnidad = ["visible" => true];
         $searchWhere = [];
         $response = [];
         $respuesta = [];
@@ -216,14 +216,14 @@ class NoticiaController extends \yii\web\Controller
           ];
         }
         if($unidad !== "all" && $user->tag_rol === "SUPER"){
-          $searchUnidad = ["id_unidad" => $unidad];
+          $searchUnidad = ["id_unidad" => $unidad, "visible" => true];
         }
 
         if($user->tag_rol !== "SUPER"){
-          $searchUnidad = ["id_unidad" => $user->id_unidad];
+          $searchUnidad = ["id_unidad" => $user->id_unidad, "visible" => true];
         }
 
-        $response = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->offset($offset)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
+        $response = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->offset($offset * $limit)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
         $count = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->count();
 
         foreach($response as $res){
@@ -239,7 +239,8 @@ class NoticiaController extends \yii\web\Controller
                 "foto" => $res->foto,
                 "archivos_adjuntos" => $archivos,
                 "id_unidad" => $res->unidad->nombre,
-                "fecha_actualizacion" => $res->fecha_actualizacion
+                "fecha_actualizacion" => $res->fecha_actualizacion,
+                "visible" => $res->visible
               ];
           }
         }
@@ -265,9 +266,9 @@ class NoticiaController extends \yii\web\Controller
         }
       }
 
-      public function actionListarOcultos($search = "all", $unidad = "all", $limit = 10, $offset = 0){
+      public function actionListarOcultos($search = "all", $unidad = "all", $limit = 20, $offset = 0){
         $user = Yii::$app->user->identity;
-        $searchUnidad = [];
+        $searchUnidad = ["visible" => false];
         $searchWhere = [];
         $response = [];
         $respuesta = [];
@@ -279,14 +280,14 @@ class NoticiaController extends \yii\web\Controller
           ];
         }
         if($unidad !== "all" && $user->tag_rol === "SUPER"){
-          $searchUnidad = ["id_unidad" => $unidad, "visible" => true];
+          $searchUnidad = ["id_unidad" => $unidad, "visible" => false];
         }
 
         if($user->tag_rol !== "SUPER"){
-          $searchUnidad = ["id_unidad" => $user->id_unidad, "visible" => true];
+          $searchUnidad = ["id_unidad" => $user->id_unidad, "visible" => false];
         }
 
-        $response = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->offset($offset)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
+        $response = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->offset($offset * $limit)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
         $count = Noticia::find()->where($searchUnidad)->andFilterWhere($searchWhere)->count();
 
         foreach($response as $res){
@@ -302,7 +303,8 @@ class NoticiaController extends \yii\web\Controller
                 "foto" => $res->foto,
                 "archivos_adjuntos" => $archivos,
                 "id_unidad" => $res->unidad->nombre,
-                "fecha_actualizacion" => $res->fecha_actualizacion
+                "fecha_actualizacion" => $res->fecha_actualizacion,
+                "visible" => $res->visible
               ];
           }
         }

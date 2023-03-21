@@ -41,7 +41,7 @@ class PublicController extends \yii\web\Controller
             $archivos = ArchivoPublico::find()->where(["id_unidad" => $id_unidad, "visible" => true])->orderBy(["id" => SORT_DESC])->all();
         }else{
             $count = ArchivoPublico::find()->where(["visible" => true])->count();
-            $archivos = ArchivoPublico::find()->where(["visible" => true])->limit($limit)->offset($offset)->orderBy(["id" => SORT_DESC])->all();
+            $archivos = ArchivoPublico::find()->where(["visible" => true])->limit($limit)->offset($offset * $limit)->orderBy(["id" => SORT_DESC])->all();
         }
         foreach($archivos  as $a){
           
@@ -85,10 +85,10 @@ class PublicController extends \yii\web\Controller
         }else{
           if($id_unidad !== 'all'){
             $count = Noticia::find()->limit(10)->where(["id_unidad" => $id_unidad, "visible" => true])->count();
-            $response = Noticia::find()->limit(10)->where(["id_unidad" => $id_unidad, "visible" => true])->offset($offset)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
+            $response = Noticia::find()->limit(10)->where(["id_unidad" => $id_unidad, "visible" => true])->offset($offset * $limit)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
           }else{
             $count = Noticia::find()->where(["visible" => true])->count();
-            $response = Noticia::find()->where(["visible" => true])->offset($offset)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
+            $response = Noticia::find()->where(["visible" => true])->offset($offset * $limit)->limit($limit)->orderBy(["id" => SORT_DESC])->all();
           }
         }
         foreach($response as $res){
@@ -138,7 +138,7 @@ class PublicController extends \yii\web\Controller
       }
       $consulta = ArchivoPublico::find()->where($searchUnidad)->andFilterWhere($searchWhere);
       $count = $consulta->count();
-      $archivos = $consulta->limit($limit)->offset($offset)->orderBy(["id" => SORT_DESC])->all();
+      $archivos = $consulta->limit($limit)->offset($offset * $limit)->orderBy(["id" => SORT_DESC])->all();
 
       foreach($archivos  as $a){
           
