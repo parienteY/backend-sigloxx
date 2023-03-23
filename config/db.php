@@ -3,8 +3,8 @@
 return [
 
     'class' => 'yii\db\Connection',
-    'dsn' => 'pgsql:host=localhost;dbname=gd_odontologia',
-    'username' => 'siglo',
+    'dsn' => 'pgsql:host=localhost;dbname=db_de_prueba',
+    'username' => 'prueba',
     'password' => '123456',
     'charset' => 'utf8',
     // 'class' => 'yii\db\Connection',

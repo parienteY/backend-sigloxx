@@ -130,7 +130,7 @@ class UserController extends \yii\web\Controller
         }
       }
 
-      protected function RegistroUsuario($body, $rol = 'administrador') {
+      protected function RegistroUsuario($body) {
         $time = date("Y-m-d H:i:s");
         $code = Yii::$app->getSecurity()->generatePasswordHash($time);
         $data = [
@@ -142,7 +142,8 @@ class UserController extends \yii\web\Controller
           "created_at" => $time,
           "updated_at" => $time,
           "status" => 10,
-          "id_unidad" => $body["unidad"]
+          "id_unidad" => $body["unidad"],
+          "tag_rol" => $body["rol"]
         ];
         if (isset($body['password'])) {
           $pwd = Yii::$app->getSecurity()->generatePasswordHash($body['password']);
@@ -152,10 +153,10 @@ class UserController extends \yii\web\Controller
           $data["picture"] = $body["picture"];
         }
         $usuarioNuevo = new User($data);
-        $usuarioNuevo->tag_rol = $rol === "administrador" ? "ADM" : "SCRE";
+        $usuarioNuevo->tag_rol = $data["tag_rol"] === "administrador" ? "ADM" : "SCRE";
         $rolAsignado = false;
         if ($usuarioNuevo->save()) {
-          switch ($rol) {
+          switch ($data["tag_rol"]) {
             case 'administrador':
               $rolAsignado = $this->asignarRol($usuarioNuevo->id, "ADM");
               break;
@@ -237,6 +238,27 @@ class UserController extends \yii\web\Controller
           throw new ServerErrorHttpException("No existe el usuario");
         }
         return $r;
+      }
+
+      public function actionCambiarContra(){
+        $params = Yii::$app->request->getBodyParams();
+        $user = Yii::$app->user->identity;
+
+        if(Yii::$app->getSecurity()->validatePassword($params['currentPassword'], $user->password_hash)){
+          $pwd = Yii::$app->getSecurity()->generatePasswordHash($params['newPassword']);
+          $userI = User::find()->where(["id" => $user->id])->one();
+          $userI->password_hash = $pwd;
+          if($userI->save()){
+            return [
+              "status" => true
+            ];
+          }else{
+            throw new ServerErrorHttpException("No se pudo actualizar");
+          }
+        }else{
+          throw new ServerErrorHttpException("No se pudo actualizar");
+        }
+
       }
 
       public function actionFiltro($search = "all", $unidad = "all", $rol = "all"){
